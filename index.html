@@ -1,0 +1,4143 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema de Cálculo de Planilla y Honorarios con Alertas Jurídicas — El Salvador</title>
+  <style>
+    /* ==========================================================================
+       PARTE 2 — SISTEMA DE DISEÑO (TOKENS CSS Y TEMAS)
+       ========================================================================== */
+    :root {
+      /* Paleta institucional */
+      --azul-900: #0f172a;
+      --azul-800: #1e3a8a;
+      --azul-700: #1d4ed8;
+      --azul-600: #2563eb;
+      --azul-500: #3b82f6;
+      --azul-100: #dbeafe;
+      --azul-50: #eff6ff;
+
+      /* Escala de grises (escala de 4px) */
+      --gris-950: #020617;
+      --gris-900: #0f172a;
+      --gris-800: #1e293b;
+      --gris-700: #334155;
+      --gris-600: #475569;
+      --gris-500: #64748b;
+      --gris-400: #94a3b8;
+      --gris-300: #cbd5e1;
+      --gris-200: #e2e8f0;
+      --gris-100: #f1f5f9;
+      --gris-50: #f8fafc;
+      --blanco: #ffffff;
+
+      /* Severidades y estados con sus variantes suaves */
+      --rojo: #dc2626;
+      --rojo-suave: #fef2f2;
+      --rojo-borde: #fca5a5;
+      --rojo-texto: #991b1b;
+
+      --ambar: #d97706;
+      --ambar-suave: #fffbeb;
+      --ambar-borde: #fde68a;
+      --ambar-texto: #92400e;
+
+      --azul-info: #2563eb;
+      --azul-info-suave: #eff6ff;
+      --azul-info-borde: #bfdbfe;
+      --azul-info-texto: #1e40af;
+
+      --verde: #16a34a;
+      --verde-suave: #f0fdf4;
+      --verde-borde: #bbf7d0;
+      --verde-texto: #166534;
+
+      /* Variables de layout y semántica */
+      --bg-body: var(--gris-50);
+      --bg-card: var(--blanco);
+      --bg-input: var(--blanco);
+      --text-main: var(--gris-900);
+      --text-muted: var(--gris-600);
+      --border-color: var(--gris-300);
+      --border-focus: var(--azul-500);
+
+      --radio: 10px;
+      --sombra: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
+      --sombra-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.09), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+      --transicion: 150ms ease-in-out;
+    }
+
+    /* MODO OSCURO */
+    [data-tema="oscuro"] {
+      --bg-body: #090d16;
+      --bg-card: #111827;
+      --bg-input: #1f2937;
+      --text-main: #f9fafb;
+      --text-muted: #9ca3af;
+      --border-color: #374151;
+      --border-focus: #60a5fa;
+
+      --gris-50: #111827;
+      --gris-100: #1f2937;
+      --gris-200: #374151;
+      --gris-300: #4b5563;
+      --gris-700: #d1d5db;
+      --azul-50: #1e293b;
+      --azul-100: #1e3a8a;
+      --azul-800: #172554;
+      --azul-900: #020617;
+
+      --rojo-suave: #2a1215;
+      --rojo-borde: #7f1d1d;
+      --rojo-texto: #fca5a5;
+
+      --ambar-suave: #2b1d0c;
+      --ambar-borde: #78350f;
+      --ambar-texto: #fde68a;
+
+      --azul-info-suave: #0e1e38;
+      --azul-info-borde: #1e3a8a;
+      --azul-info-texto: #93c5fd;
+
+      --verde-suave: #0d2818;
+      --verde-borde: #14532d;
+      --verde-texto: #86efac;
+
+      --sombra: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+      --sombra-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-body);
+      color: var(--text-main);
+      line-height: 1.5;
+      padding: 1.5rem 1rem;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      transition: background-color var(--transicion), color var(--transicion);
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
+      flex: 1;
+    }
+
+    /* SISTEMA DE ICONOS SVG EMBEBIDOS */
+    .ic {
+      width: 1.25em;
+      height: 1.25em;
+      fill: currentColor;
+      vertical-align: -0.25em;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+
+    .ic-rojo { color: var(--rojo); }
+    .ic-ambar { color: var(--ambar); }
+    .ic-azul { color: var(--azul-info); }
+    .ic-verde { color: var(--verde); }
+
+    /* NÚMEROS TABULARES */
+    .tabular {
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -0.01em;
+    }
+
+    /* ENCABEZADO */
+    header.main-header {
+      background: linear-gradient(135deg, var(--azul-800) 0%, var(--azul-900) 100%);
+      color: #ffffff;
+      padding: 1.5rem 2rem;
+      border-radius: var(--radio);
+      box-shadow: var(--sombra-lg);
+      margin-bottom: 1.25rem;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    header.main-header h1 {
+      font-size: 1.55rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    header.main-header .subheading {
+      font-size: 0.9rem;
+      color: var(--gris-300);
+      margin-top: 0.25rem;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    /* SELECTOR DE PESTAÑAS DE RÉGIMEN */
+    .mode-nav {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.25rem;
+      background-color: var(--gris-200);
+      padding: 0.35rem;
+      border-radius: var(--radio);
+      user-select: none;
+    }
+
+    .mode-tab {
+      flex: 1;
+      text-align: center;
+      padding: 0.7rem 1rem;
+      font-weight: 700;
+      font-size: 0.95rem;
+      border-radius: 8px;
+      cursor: pointer;
+      color: var(--text-muted);
+      background: transparent;
+      border: none;
+      transition: all var(--transicion);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .mode-tab:hover {
+      color: var(--text-main);
+    }
+
+    .mode-tab.active {
+      background-color: var(--bg-card);
+      color: var(--azul-600);
+      box-shadow: var(--sombra);
+    }
+
+    /* BOTONES */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.6rem 1.1rem;
+      font-size: 0.92rem;
+      font-weight: 600;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all var(--transicion);
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background-color: var(--azul-600);
+      color: #ffffff;
+      border-color: var(--azul-700);
+      box-shadow: 0 2px 4px rgba(37, 99, 235, 0.25);
+    }
+    .btn-primary:hover {
+      background-color: var(--azul-700);
+    }
+
+    .btn-accent {
+      background-color: var(--ambar);
+      color: #ffffff;
+      box-shadow: 0 2px 4px rgba(217, 119, 6, 0.25);
+    }
+    .btn-accent:hover {
+      background-color: #b45309;
+    }
+
+    .btn-outline {
+      background-color: rgba(255, 255, 255, 0.1);
+      color: #ffffff;
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+    .btn-outline:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-secondary {
+      background-color: var(--gris-200);
+      color: var(--text-main);
+      border-color: var(--border-color);
+    }
+    .btn-secondary:hover {
+      background-color: var(--gris-300);
+    }
+
+    .btn-danger-sm {
+      padding: 0.35rem 0.65rem;
+      font-size: 0.8rem;
+      background-color: var(--rojo-suave);
+      color: var(--rojo-texto);
+      border: 1px solid var(--rojo-borde);
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .btn-danger-sm:hover {
+      background-color: var(--rojo-borde);
+    }
+
+    .btn-add {
+      background-color: var(--gris-100);
+      color: var(--azul-600);
+      border: 1px dashed var(--gris-400);
+      width: 100%;
+      padding: 0.6rem;
+      font-weight: 600;
+      border-radius: 6px;
+    }
+    .btn-add:hover {
+      background-color: var(--gris-200);
+      border-color: var(--gris-600);
+    }
+
+    /* GRID PRINCIPAL */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 500px 1fr;
+      gap: 1.5rem;
+      align-items: start;
+    }
+
+    @media (max-width: 1100px) {
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* TARJETAS CONTENEDORAS */
+    .card {
+      background-color: var(--bg-card);
+      border-radius: var(--radio);
+      border: 1px solid var(--border-color);
+      box-shadow: var(--sombra);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      transition: background-color var(--transicion), border-color var(--transicion);
+    }
+
+    .card-title {
+      font-size: 1.18rem;
+      font-weight: 700;
+      color: var(--azul-600);
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      border-bottom: 2px solid var(--gris-200);
+      padding-bottom: 0.6rem;
+    }
+
+    /* FORMULARIOS */
+    .form-group {
+      margin-bottom: 1.15rem;
+    }
+
+    .form-label {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-main);
+      margin-bottom: 0.35rem;
+    }
+
+    .form-label .required {
+      color: var(--rojo);
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 0.65rem 0.85rem;
+      font-size: 0.95rem;
+      border: 1.5px solid var(--border-color);
+      border-radius: 8px;
+      background-color: var(--bg-input);
+      color: var(--text-main);
+      transition: border-color var(--transicion), box-shadow var(--transicion);
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .checkbox-box {
+      background-color: var(--gris-50);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 0.85rem 1rem;
+      margin-bottom: 1rem;
+      transition: background-color var(--transicion);
+    }
+
+    .checkbox-box:hover {
+      background-color: var(--gris-100);
+    }
+
+    .checkbox-label {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.65rem;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.92rem;
+      color: var(--text-main);
+      user-select: none;
+    }
+
+    .checkbox-label input[type="checkbox"] {
+      width: 1.15rem;
+      height: 1.15rem;
+      accent-color: var(--azul-600);
+      cursor: pointer;
+      margin-top: 0.15rem;
+      flex-shrink: 0;
+    }
+
+    .conditional-panel {
+      display: none;
+      margin-top: 0.85rem;
+      padding-top: 0.85rem;
+      border-top: 1px dashed var(--border-color);
+    }
+
+    .conditional-panel.active {
+      display: block;
+    }
+
+    /* REPETIDOR DE DESCUENTOS */
+    .descuento-item {
+      background-color: var(--gris-50);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 0.85rem;
+      margin-bottom: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .descuento-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* BLOQUE DE INDICADORES DE SUBORDINACIÓN */
+    .subordinacion-box {
+      background-color: var(--ambar-suave);
+      border: 1.5px solid var(--ambar-borde);
+      border-radius: var(--radio);
+      padding: 1.1rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .subordinacion-title {
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--ambar-texto);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+    }
+
+    .subordinacion-badge {
+      background-color: var(--ambar);
+      color: #ffffff;
+      font-size: 0.75rem;
+      padding: 0.2rem 0.55rem;
+      border-radius: 9999px;
+      font-weight: 800;
+    }
+
+    .subordinacion-desc {
+      font-size: 0.82rem;
+      color: var(--ambar-texto);
+      margin-bottom: 0.85rem;
+      line-height: 1.4;
+    }
+
+    .indicador-item {
+      background: var(--bg-card);
+      border: 1px solid var(--ambar-borde);
+      border-radius: 6px;
+      padding: 0.55rem 0.75rem;
+      margin-bottom: 0.45rem;
+    }
+
+    .indicador-item .checkbox-label {
+      font-weight: 500;
+      font-size: 0.85rem;
+    }
+
+    /* PANEL DE RESULTADOS */
+    .worker-badge-bar {
+      background-color: var(--gris-100);
+      border-radius: 8px;
+      padding: 0.85rem 1rem;
+      margin-bottom: 1.25rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 0.75rem;
+    }
+
+    .worker-badge-item .badge-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      font-weight: 700;
+      letter-spacing: 0.03em;
+    }
+
+    .worker-badge-item .badge-value {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    /* HERO SALARIO LÍQUIDO */
+    .hero-salario {
+      background: linear-gradient(135deg, var(--azul-900) 0%, var(--azul-800) 100%);
+      color: #ffffff;
+      border-radius: var(--radio);
+      padding: 1.5rem;
+      text-align: center;
+      margin-bottom: 1.25rem;
+      box-shadow: var(--sombra-lg);
+    }
+
+    .hero-salario .hero-tag {
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--azul-100);
+      font-weight: 700;
+      margin-bottom: 0.35rem;
+    }
+
+    .hero-salario .hero-monto {
+      font-size: 2.6rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: #38bdf8;
+    }
+
+    .hero-salario .hero-sub {
+      font-size: 0.85rem;
+      color: var(--gris-300);
+      margin-top: 0.35rem;
+    }
+
+    /* TABLA DE DESGLOSE */
+    .table-container {
+      overflow-x: auto;
+      margin-bottom: 1.25rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+    }
+
+    table.payroll-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+      text-align: left;
+    }
+
+    table.payroll-table th {
+      background-color: var(--gris-100);
+      color: var(--text-muted);
+      font-weight: 700;
+      padding: 0.75rem 1rem;
+      border-bottom: 1.5px solid var(--border-color);
+      text-transform: uppercase;
+      font-size: 0.78rem;
+      letter-spacing: 0.03em;
+    }
+
+    table.payroll-table td {
+      padding: 0.65rem 1rem;
+      border-bottom: 1px solid var(--gris-200);
+    }
+
+    table.payroll-table tr:hover {
+      background-color: var(--gris-50);
+    }
+
+    .val-positive {
+      color: var(--verde);
+      font-weight: 700;
+    }
+
+    .val-negative {
+      color: var(--rojo);
+      font-weight: 700;
+    }
+
+    .val-neutral {
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .val-iva {
+      color: #6366f1;
+      font-weight: 700;
+    }
+
+    .table-subtotal-row {
+      background-color: var(--gris-50);
+      font-weight: 700;
+      border-top: 2px solid var(--border-color);
+      border-bottom: 2px solid var(--border-color);
+    }
+
+    .table-total-row {
+      background-color: var(--azul-50);
+      font-weight: 800;
+      font-size: 1rem;
+      border-top: 2px solid var(--azul-500);
+    }
+
+    /* CAJA ESPECIAL DE IVA */
+    .iva-callout-box {
+      background-color: var(--azul-info-suave);
+      border: 1px solid var(--azul-info-borde);
+      border-radius: 8px;
+      padding: 0.85rem 1rem;
+      margin-bottom: 1.25rem;
+      font-size: 0.88rem;
+      color: var(--azul-info-texto);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    /* PARTE 3 — PANEL "COSTO TOTAL DEL EMPLEADOR" */
+    .patronal-collapsible {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radio);
+      margin-bottom: 1.5rem;
+      overflow: hidden;
+      box-shadow: var(--sombra);
+    }
+
+    .patronal-toggle-btn {
+      width: 100%;
+      background-color: var(--gris-100);
+      border: none;
+      padding: 0.85rem 1.25rem;
+      text-align: left;
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--azul-600);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: background-color var(--transicion);
+    }
+
+    .patronal-toggle-btn:hover {
+      background-color: var(--gris-200);
+    }
+
+    .patronal-content {
+      padding: 1.25rem;
+      display: block;
+    }
+
+    .patronal-content.collapsed {
+      display: none;
+    }
+
+    .costo-total-card {
+      background: linear-gradient(135deg, var(--azul-800) 0%, var(--azul-900) 100%);
+      color: #ffffff;
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      margin-top: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* MOTOR DE ALERTAS */
+    .alerts-counter-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+      padding: 0.75rem 1rem;
+      background-color: var(--gris-100);
+      border-radius: 8px;
+      border-left: 5px solid var(--azul-600);
+    }
+
+    .alerts-counter-bar .counter-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .alerts-counter-bar .counter-pills {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 0.25rem 0.65rem;
+      border-radius: 9999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .pill-red {
+      background-color: var(--rojo-suave);
+      color: var(--rojo-texto);
+      border: 1px solid var(--rojo-borde);
+    }
+
+    .pill-amber {
+      background-color: var(--ambar-suave);
+      color: var(--ambar-texto);
+      border: 1px solid var(--ambar-borde);
+    }
+
+    .pill-blue {
+      background-color: var(--azul-info-suave);
+      color: var(--azul-info-texto);
+      border: 1px solid var(--azul-info-borde);
+    }
+
+    .pill-green {
+      background-color: var(--verde-suave);
+      color: var(--verde-texto);
+      border: 1px solid var(--verde-borde);
+    }
+
+    /* TARJETA DE ALERTA INDIVIDUAL */
+    .alert-card {
+      border-radius: var(--radio);
+      padding: 1.1rem 1.25rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      border-left-width: 6px;
+      border-left-style: solid;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      transition: transform var(--transicion);
+    }
+
+    .alert-card:hover {
+      transform: translateY(-1px);
+    }
+
+    .alert-card.ROJA {
+      background-color: var(--rojo-suave);
+      border-color: var(--rojo);
+      border-top: 1px solid var(--rojo-borde);
+      border-right: 1px solid var(--rojo-borde);
+      border-bottom: 1px solid var(--rojo-borde);
+    }
+
+    .alert-card.AMARILLA {
+      background-color: var(--ambar-suave);
+      border-color: var(--ambar);
+      border-top: 1px solid var(--ambar-borde);
+      border-right: 1px solid var(--ambar-borde);
+      border-bottom: 1px solid var(--ambar-borde);
+    }
+
+    .alert-card.AZUL {
+      background-color: var(--azul-info-suave);
+      border-color: var(--azul-info);
+      border-top: 1px solid var(--azul-info-borde);
+      border-right: 1px solid var(--azul-info-borde);
+      border-bottom: 1px solid var(--azul-info-borde);
+    }
+
+    .alert-card.VERDE {
+      background-color: var(--verde-suave);
+      border-color: var(--verde);
+      border-top: 1px solid var(--verde-borde);
+      border-right: 1px solid var(--verde-borde);
+      border-bottom: 1px solid var(--verde-borde);
+    }
+
+    .alert-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    .alert-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .alert-card.ROJA .alert-title-wrap { color: var(--rojo-texto); }
+    .alert-card.AMARILLA .alert-title-wrap { color: var(--ambar-texto); }
+    .alert-card.AZUL .alert-title-wrap { color: var(--azul-info-texto); }
+    .alert-card.VERDE .alert-title-wrap { color: var(--verde-texto); }
+
+    .alert-badge {
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      color: #ffffff;
+    }
+
+    .alert-card.ROJA .alert-badge { background-color: var(--rojo); }
+    .alert-card.AMARILLA .alert-badge { background-color: var(--ambar); }
+    .alert-card.AZUL .alert-badge { background-color: var(--azul-info); }
+    .alert-card.VERDE .alert-badge { background-color: var(--verde); }
+
+    .alert-message {
+      font-size: 0.92rem;
+      color: var(--text-main);
+      line-height: 1.45;
+    }
+
+    .alert-fundamento {
+      font-size: 0.8rem;
+      font-style: italic;
+      color: var(--text-muted);
+      margin-top: 0.35rem;
+      padding-top: 0.35rem;
+      border-top: 1px dashed var(--border-color);
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    /* REGLA DE ORO: LLAMADO JURÍDICO */
+    .regla-de-oro-box {
+      background: linear-gradient(135deg, var(--azul-900) 0%, var(--azul-800) 100%);
+      color: #ffffff;
+      border-left: 6px solid var(--ambar);
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      margin-top: 1.25rem;
+      box-shadow: var(--sombra);
+    }
+
+    .regla-de-oro-box .regla-title {
+      font-size: 0.85rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--ambar);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.35rem;
+    }
+
+    .regla-de-oro-box .regla-text {
+      font-size: 0.95rem;
+      font-weight: 600;
+      font-style: italic;
+      line-height: 1.45;
+      color: #f8fafc;
+    }
+
+    /* FOOTER */
+    footer.main-footer {
+      margin-top: 2rem;
+      padding: 1.25rem 1rem;
+      border-top: 1px solid var(--border-color);
+      text-align: center;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    .vigencia-note {
+      font-weight: 600;
+      color: var(--azul-600);
+      margin-bottom: 0.25rem;
+    }
+
+    /* ==========================================================================
+       PARTE 3 — NOTA DE EROGACIÓN PATRONAL
+       ========================================================================== */
+    .costo-ratio-note {
+      margin-top: 0.65rem;
+      padding-top: 0.5rem;
+      border-top: 1px dashed rgba(255, 255, 255, 0.2);
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: #bae6fd;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    /* ==========================================================================
+       PARTE 6 — TRAZABILIDAD DE LAS ALERTAS (DESGLOSE EXPANDIBLE)
+       ========================================================================== */
+    .trazabilidad-toggle {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      border-radius: 6px;
+      padding: 0.3rem 0.65rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      margin-top: 0.4rem;
+      transition: all var(--transicion);
+    }
+
+    .trazabilidad-toggle:hover {
+      background-color: var(--gris-200);
+      border-color: var(--gris-400);
+    }
+
+    .trazabilidad-toggle svg {
+      transition: transform var(--transicion);
+    }
+
+    .trazabilidad-toggle.active svg {
+      transform: rotate(180deg);
+    }
+
+    .trazabilidad-box {
+      display: none;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.82rem;
+      line-height: 1.45;
+      background: var(--gris-950);
+      color: #38bdf8;
+      padding: 0.85rem 1rem;
+      border-radius: 6px;
+      margin-top: 0.5rem;
+      border-left: 3px solid var(--azul-500);
+      overflow-x: auto;
+      white-space: pre;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4);
+    }
+
+    .trazabilidad-box.active {
+      display: block;
+    }
+
+    /* ==========================================================================
+       PARTE 5 — PLANILLA DE VARIOS TRABAJADORES (RESUMEN MULTI-EMPLEADO)
+       ========================================================================== */
+    .planilla-section {
+      margin-top: 2rem;
+      border-top: 4px solid var(--azul-600);
+    }
+
+    .cumplimiento-container {
+      background-color: var(--gris-100);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .cumplimiento-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .cumplimiento-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .cumplimiento-score {
+      font-size: 1.25rem;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .cumplimiento-bar {
+      height: 12px;
+      background-color: var(--gris-300);
+      border-radius: 6px;
+      overflow: hidden;
+      display: flex;
+    }
+
+    .cumplimiento-fill {
+      height: 100%;
+      width: 100%;
+      background-color: var(--verde);
+      transition: width 300ms ease, background-color 300ms ease;
+    }
+
+    .cumplimiento-sub {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 0.4rem;
+    }
+
+    .badge-alerta-count {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 0.2rem 0.6rem;
+      border-radius: 9999px;
+      color: #ffffff;
+    }
+
+    .badge-alerta-count.ROJA { background-color: var(--rojo); }
+    .badge-alerta-count.AMARILLA { background-color: var(--ambar); }
+    .badge-alerta-count.AZUL { background-color: var(--azul-info); }
+    .badge-alerta-count.VERDE { background-color: var(--verde); }
+
+    /* ==========================================================================
+       PARTE 4 — COMPARADOR DE REGÍMENES (LA FUNCIÓN ESTRELLA)
+       ========================================================================== */
+    .comparador-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background-color: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(5px);
+      z-index: 9999;
+      overflow-y: auto;
+      padding: 1.5rem 1rem;
+      animation: fadeIn 150ms ease-out;
+    }
+
+    .comparador-overlay.active {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.98); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .comparador-modal {
+      background-color: var(--bg-card);
+      border-radius: var(--radio);
+      max-width: 1120px;
+      width: 100%;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      border: 1px solid var(--border-color);
+      padding: 2rem;
+      position: relative;
+      margin: 1rem auto;
+      color: var(--text-main);
+    }
+
+    .comparador-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 1rem;
+    }
+
+    .comparador-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 860px) {
+      .comparador-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .col-comparador {
+      border-radius: 8px;
+      padding: 1.25rem 1.5rem;
+      border: 1px solid var(--border-color);
+      background-color: var(--gris-50);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .col-comparador.laboral {
+      border-top: 5px solid var(--azul-600);
+    }
+
+    .col-comparador.servicios {
+      border-top: 5px solid var(--ambar);
+    }
+
+    .col-comparador-title {
+      font-size: 1.2rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .col-comparador.laboral .col-comparador-title { color: var(--azul-600); }
+    .col-comparador.servicios .col-comparador-title { color: var(--ambar); }
+
+    .benefit-list {
+      list-style: none;
+      padding: 0;
+      margin: 1.25rem 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+      flex: 1;
+    }
+
+    .benefit-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.6rem;
+      font-size: 0.92rem;
+      line-height: 1.4;
+    }
+
+    .benefit-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 1.35rem;
+      height: 1.35rem;
+      border-radius: 50%;
+      flex-shrink: 0;
+      font-size: 0.8rem;
+      font-weight: 900;
+      margin-top: 0.1rem;
+    }
+
+    .benefit-badge.yes {
+      background-color: var(--verde-suave);
+      color: var(--verde);
+      border: 1px solid var(--verde-borde);
+    }
+
+    .benefit-badge.no {
+      background-color: var(--rojo-suave);
+      color: var(--rojo);
+      border: 1px solid var(--rojo-borde);
+    }
+
+    .balance-highlight-card {
+      background: linear-gradient(135deg, var(--azul-900) 0%, var(--azul-800) 100%);
+      color: #ffffff;
+      border-radius: var(--radio);
+      padding: 1.5rem;
+      margin-top: 1.25rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      box-shadow: var(--sombra-lg);
+    }
+
+    @media (max-width: 700px) {
+      .balance-highlight-card {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .balance-item-title {
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--azul-100);
+      font-weight: 700;
+      margin-bottom: 0.35rem;
+    }
+
+    .balance-item-val {
+      font-size: 1.75rem;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .balance-item-desc {
+      font-size: 0.85rem;
+      color: var(--gris-300);
+      margin-top: 0.25rem;
+    }
+
+    /* ==========================================================================
+       PARTE 7 — MODO PRESENTACIÓN (PROYECTOR EN PANTALLA 1366x768)
+       ========================================================================== */
+    body.modo-presentacion {
+      font-size: 1.15rem;
+    }
+
+    body.modo-presentacion .container {
+      max-width: 1280px;
+    }
+
+    body.modo-presentacion #form-column,
+    body.modo-presentacion .mode-nav,
+    body.modo-presentacion #btn-ejemplo,
+    body.modo-presentacion #btn-limpiar {
+      display: none !important;
+    }
+
+    body.modo-presentacion .main-grid {
+      grid-template-columns: 1fr !important;
+    }
+
+    body.modo-presentacion .hero-salario .hero-monto {
+      font-size: 3.5rem;
+    }
+
+    body.modo-presentacion table.payroll-table {
+      font-size: 1.05rem;
+    }
+
+    body.modo-presentacion .alert-title-wrap {
+      font-size: 1.15rem;
+    }
+
+    body.modo-presentacion .alert-message {
+      font-size: 1.05rem;
+    }
+
+    .exit-presentation-banner {
+      display: none;
+      background: var(--azul-600);
+      color: #ffffff;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      margin-bottom: 1rem;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    body.modo-presentacion .exit-presentation-banner {
+      display: flex !important;
+    }
+
+    /* ==========================================================================
+       ESTILOS DE IMPRESIÓN MEJORADOS (PDF / PRINT)
+       ========================================================================== */
+    @media print {
+      body {
+        background-color: #ffffff !important;
+        color: #000000 !important;
+        padding: 0;
+        font-size: 9.5pt;
+      }
+
+      header.main-header {
+        background: #1e3a8a !important;
+        color: #ffffff !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        padding: 0.8rem 1rem;
+        margin-bottom: 0.8rem;
+      }
+
+      header.main-header h1 {
+        font-size: 1.25rem;
+        color: #ffffff !important;
+      }
+
+      header.main-header .subheading {
+        color: #e2e8f0 !important;
+      }
+
+      .header-actions,
+      .mode-nav,
+      #form-column,
+      .btn,
+      .btn-add,
+      .btn-danger-sm,
+      .trazabilidad-toggle,
+      .comparador-overlay,
+      .exit-presentation-banner {
+        display: none !important;
+      }
+
+      .main-grid {
+        display: block !important;
+      }
+
+      #results-column {
+        width: 100% !important;
+      }
+
+      .card {
+        border: 1px solid #94a3b8;
+        box-shadow: none;
+        page-break-inside: avoid;
+        margin-bottom: 0.8rem;
+        padding: 0.8rem 1rem;
+      }
+
+      .hero-salario {
+        background: #1e293b !important;
+        color: #ffffff !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        padding: 0.8rem;
+      }
+
+      .hero-salario .hero-monto {
+        color: #ffffff !important;
+        font-size: 2rem;
+      }
+
+      .alert-card {
+        page-break-inside: avoid;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        margin-bottom: 0.5rem;
+        padding: 0.6rem 0.8rem;
+      }
+
+      .trazabilidad-box.active {
+        display: block !important;
+        border: 1px solid #64748b;
+        background-color: #f8fafc !important;
+        color: #0f172a !important;
+      }
+
+      table.payroll-table th {
+        background-color: #e2e8f0 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      .planilla-section {
+        page-break-before: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ==========================================================================
+     PARTE 1 — SPRITE SVG OCULTO (MATERIAL SYMBOLS EMBEBIDOS OFFLINE)
+     ========================================================================== -->
+<svg style="display:none;" xmlns="http://www.w3.org/2000/svg">
+  <symbol id="ic-payments" viewBox="0 -960 960 960"><path d="M560-440q33 0 56.5-23.5T640-520q0-33-23.5-56.5T560-600q-33 0-56.5 23.5T480-520q0 33 23.5 56.5T560-440Zm0 80q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47ZM160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h640q33 0 56.5 23.5T880-720v480q0 33-23.5 56.5T800-160H160Zm0-80h640v-480H160v480Zm0 0v-480 480Z"/></symbol>
+  <symbol id="ic-handshake" viewBox="0 -960 960 960"><path d="M480-80 200-360l56-56 184 184v-408h80v408l184-184 56 56L480-80Zm0-560-140-140q-23-23-23-57t23-57l57-57q23-23 57-23t57 23l140 140-174 174Z"/></symbol>
+  <symbol id="ic-person" viewBox="0 -960 960 960"><path d="M480-480q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47ZM160-160v-112q0-34 17.5-62.5T224-378q62-31 126-46.5T480-440q64 0 128 15.5T736-378q29 15 46.5 43.5T800-272v112H160Zm80-80h480v-32q0-11-5.5-20T700-306q-54-27-109-40.5T480-360q-56 0-111 13.5T260-306q-9 5-14.5 14t-5.5 20v32Zm240-320q33 0 56.5-23.5T560-640q0-33-23.5-56.5T480-720q-33 0-56.5 23.5T400-640q0 33 23.5 56.5T480-560Zm0-80Zm0 400Z"/></symbol>
+  <symbol id="ic-work" viewBox="0 -960 960 960"><path d="M160-160q-33 0-56.5-23.5T80-240v-400q0-33 23.5-56.5T160-720h160v-80q0-33 23.5-56.5T400-880h160q33 0 56.5 23.5T640-800v80h160q33 0 56.5 23.5T880-640v400q0 33-23.5 56.5T800-160H160Zm0-80h640v-400H160v400Zm240-480h160v-80H400v80ZM160-240v-400 400Z"/></symbol>
+  <symbol id="ic-attach_money" viewBox="0 -960 960 960"><path d="M440-160v-84q-54-13-87-51.5T320-394l76-32q11 41 35 63.5t69 22.5q46 0 73-20.5t27-51.5q0-37-29.5-60.5T468-524q-81-28-114.5-60T320-668q0-61 40.5-100.5T440-818v-62h80v62q47 10 77.5 41t40.5 73l-72 30q-9-33-31-50t-65-17q-41 0-65.5 19T398-638q0 33 27 54.5t97 47.5q81 29 116.5 63t35.5 87q0 61-42.5 101T520-244v84h-80Z"/></symbol>
+  <symbol id="ic-health_and_safety" viewBox="0 -960 960 960"><path d="M480-80q-139-35-229.5-159.5T160-516v-244l320-120 320 120v244q0 152-90.5 276.5T480-80Zm0-84q104-33 172-131t68-221v-189l-240-90-240 90v189q0 123 68 221t172 131Zm-40-236h80v-120h120v-80H520v-120h-80v120H320v80h120v120Zm40-160Z"/></symbol>
+  <symbol id="ic-savings" viewBox="0 -960 960 960"><path d="M800-480q0-20-4-40t-12-38l-72-154q-11-23-32-35.5T630-760H450q-21 0-41 9t-35 25L232-584H120q-33 0-56.5 23.5T40-504v184q0 33 23.5 56.5T120-240h40v80h160v-80h240v80h160v-80h80q33 0 56.5-23.5T880-320v-80h-80v-80Zm-80 160H120v-184h146l154-156h210l60 128q6 13 8 26.5t2 27.5v158Zm-400-80h240v-80H320v80Zm200-240q17 0 28.5-11.5T560-680q0-17-11.5-28.5T520-720q-17 0-28.5 11.5T480-680q0 17 11.5 28.5T520-640Z"/></symbol>
+  <symbol id="ic-account_balance" viewBox="0 -960 960 960"><path d="M200-280v-280h80v280h-80Zm240 0v-280h80v280h-80ZM80-120v-80h800v80H80Zm600-160v-280h80v280h-80ZM80-640v-80l400-200 400 200v80H80Zm178-80h444-444Zm0 0h444L480-830 258-720Z"/></symbol>
+  <symbol id="ic-family_restroom" viewBox="0 -960 960 960"><path d="M160-560q25 0 42.5-17.5T220-620q0-25-17.5-42.5T160-680q-25 0-42.5 17.5T100-620q0 25 17.5 42.5T160-560Zm240 0q25 0 42.5-17.5T460-620q0-25-17.5-42.5T400-680q-25 0-42.5 17.5T340-620q0 25 17.5 42.5T400-560Zm-280 440v-240h40v240h-40Zm80 0v-160h40v160h-40Zm160 0v-240h40v240h-40Zm80 0v-160h40v160h-40ZM80-400v-100q0-17 11.5-28.5T120-540h80q17 0 28.5 11.5T240-500v100H80Zm240 0v-100q0-17 11.5-28.5T360-540h80q17 0 28.5 11.5T480-500v100H320Zm360-160q25 0 42.5-17.5T740-620q0-25-17.5-42.5T680-680q-25 0-42.5 17.5T620-620q0 25 17.5 42.5T680-560Zm-40 440v-200h40v200h-40Zm80 0v-200h40v200h-40Zm-120-280v-100q0-17 11.5-28.5T640-540h80q17 0 28.5 11.5T760-500v100H600Z"/></symbol>
+  <symbol id="ic-gavel" viewBox="0 -960 960 960"><path d="m395-120-95-95 198-198-56-57-198 198-94-94 198-198q23-23 56.5-23t56.5 23l14 14 71-71-71-71 56-56 227 226-57 57-71-71-70 71 14 14q23 23 23 56.5T621-458L395-120Zm-235 0v-80h240v80H160Z"/></symbol>
+  <symbol id="ic-receipt_long" viewBox="0 -960 960 960"><path d="M280-280h280v-80H280v80Zm0-160h400v-80H280v80Zm0-160h400v-80H280v80Zm-160 680v-760q0-33 23.5-56.5T200-880h560q33 0 56.5 23.5T840-800v760l-80-80-80 80-80-80-80 80-80-80-80 80-80-80-80 80-80-80-80 80Zm80-114 80-80 80 80 80-80 80 80 80-80 80 80 80-80v-626H200v626Z"/></symbol>
+  <symbol id="ic-calculate" viewBox="0 -960 960 960"><path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Zm0-80h560v-560H200v560Zm80-80h120v-80H280v80Zm0-140h120v-80H280v80Zm0-140h120v-80H280v80Zm200 280h200v-80H480v80Zm0-140h80v-80h-80v80Zm120 0h80v-80h-80v80Zm-120-140h200v-80H480v80ZM200-200v-560 560Z"/></symbol>
+  <symbol id="ic-restart_alt" viewBox="0 -960 960 960"><path d="M480-160q-134 0-227-93t-93-227q0-134 93-227t227-93q69 0 132 28.5T720-690v-110h80v280H520v-80h168q-32-56-87.5-88T480-720q-100 0-170 70t-70 170q0 100 70 170t170 70q77 0 139-44t87-116h84q-28 106-114 173t-196 67Z"/></symbol>
+  <symbol id="ic-science" viewBox="0 -960 960 960"><path d="M200-120q-33 0-56.5-23.5T120-200q0-13 4.5-26t13.5-24l182-270v-240h-40v-80h400v80h-40v240l182 270q9 11 13.5 24t4.5 26q0 33-23.5 56.5T760-120H200Zm80-80h400L554-386H406L280-200Zm120-266h160v-274H400v274Zm80 80Z"/></symbol>
+  <symbol id="ic-print" viewBox="0 -960 960 960"><path d="M640-640v-160H320v160h320Zm-480 80h640-640Zm560 100q17 0 28.5-11.5T760-500q0-17-11.5-28.5T720-540q-17 0-28.5 11.5T680-500q0 17 11.5 28.5T720-460Zm-80 260v-160H320v160h320Zm80 80H240v-160H80v-240q0-33 23.5-56.5T160-640h640q33 0 56.5 23.5T880-560v240H720v160Zm80-240v-160q0-17-11.5-28.5T760-560H200q-17 0-28.5 11.5T160-520v160h80v-80h480v80h80Z"/></symbol>
+  <symbol id="ic-download" viewBox="0 -960 960 960"><path d="M480-320 280-520l56-58 104 104v-326h80v326l104-104 56 58-200 200ZM240-160q-33 0-56.5-23.5T160-240v-120h80v120h480v-120h80v120q0 33-23.5 56.5T720-160H240Z"/></symbol>
+  <symbol id="ic-error" viewBox="0 -960 960 960"><path d="M480-280q17 0 28.5-11.5T520-320q0-17-11.5-28.5T480-360q-17 0-28.5 11.5T440-320q0 17 11.5 28.5T480-280Zm-40-160h80v-240h-80v240Zm40 360q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z"/></symbol>
+  <symbol id="ic-warning" viewBox="0 -960 960 960"><path d="m40-120 440-760 440 760H40Zm138-80h604L480-720 178-200Zm302-40q17 0 28.5-11.5T520-280q0-17-11.5-28.5T480-320q-17 0-28.5 11.5T440-280q0 17 11.5 28.5T480-240Zm-40-120h80v-200h-80v200Zm40-100Z"/></symbol>
+  <symbol id="ic-info" viewBox="0 -960 960 960"><path d="M440-280h80v-240h-80v240Zm40-320q17 0 28.5-11.5T520-640q0-17-11.5-28.5T480-680q-17 0-28.5 11.5T440-640q0 17 11.5 28.5T480-600Zm0 520q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z"/></symbol>
+  <symbol id="ic-check_circle" viewBox="0 -960 960 960"><path d="m424-296 282-282-56-56-226 226-114-114-56 56 170 170Zm56 216q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z"/></symbol>
+  <symbol id="ic-balance" viewBox="0 -960 960 960"><path d="M440-120v-80H200q-33 0-56.5-23.5T120-280v-200l100-200h520l100 200v200q0 33-23.5 56.5T760-200H520v80h-80Zm0-160h80v-400h-80v400ZM200-480h120l-60-120-60 120Zm440 0h120l-60-120-60 120ZM480-760q17 0 28.5-11.5T520-800q0-17-11.5-28.5T480-840q-17 0-28.5 11.5T440-800q0 17 11.5 28.5T480-760Z"/></symbol>
+  <symbol id="ic-compare_arrows" viewBox="0 -960 960 960"><path d="M400-240 280-360l120-120 56 56-24 24h248v80H432l24 24-56 56Zm160-240-56-56 24-24H280v-80h248l-24-24 56-56 120 120-120 120Z"/></symbol>
+  <symbol id="ic-groups" viewBox="0 -960 960 960"><path d="M0-240v-63q0-43 44-70t116-27q13 0 25 .5t23 2.5q-14 21-21 44t-7 47v66H0Zm240 0v-66q0-32 15.5-58.5T296-407q35-15 73.5-24T448-440q40 0 78.5 9t74 24q25 14 40.5 40.5T657-306v66H240Zm480 0v-66q0-24-7-47t-21-44q11-2 23-2.5t25-.5q72 0 116 27t44 70v63H720ZM160-440q-33 0-56.5-23.5T80-520q0-33 23.5-56.5T160-600q33 0 56.5 23.5T240-520q0 33-23.5 56.5T160-440Zm640 0q-33 0-56.5-23.5T720-520q0-33 23.5-56.5T800-600q33 0 56.5 23.5T880-520q0 33-23.5 56.5T800-440ZM448-480q-50 0-85-35t-35-85q0-50 35-85t85-35q50 0 85 35t35 85q0 50-35 85t-85 35Z"/></symbol>
+  <symbol id="ic-business_center" viewBox="0 -960 960 960"><path d="M160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h160v-80h320v80h160q33 0 56.5 23.5T880-720v480q0 33-23.5 56.5T800-160H160Zm0-80h640v-200H560v80H400v-80H160v200Zm240-200h160v-80H400v80Zm-240-80h240v-80h160v80h240v-200H160v200Zm240-200h160v-80H400v80Z"/></symbol>
+  <symbol id="ic-dark_mode" viewBox="0 -960 960 960"><path d="M480-120q-150 0-255-105T120-480q0-150 105-255t255-105q14 0 27.5 1t26.5 3q-41 29-65.5 75.5T444-660q0 90 63 153t153 63q55 0 101-24.5t75-65.5q2 13 3 26.5t1 27.5q0 150-105 255T480-120Z"/></symbol>
+  <symbol id="ic-light_mode" viewBox="0 -960 960 960"><path d="M480-280q-83 0-141.5-58.5T280-480q0-83 58.5-141.5T480-680q83 0 141.5 58.5T680-480q0 83-58.5 141.5T480-280ZM200-440H40v-80h160v80Zm720 0H760v-80h160v80ZM440-760v-160h80v160h-80Zm0 920v-160h80v160h-80ZM256-650l-101-97 57-59 96 100-52 56Zm492 496-97-101 53-55 101 97-57 59Zm-98-550 97-101 59 57-100 96-56-52ZM154-212l101-97 55 53-97 101-59-57Z"/></symbol>
+  <symbol id="ic-fullscreen" viewBox="0 -960 960 960"><path d="M120-120v-200h80v120h120v80H120Zm520 0v-80h120v-120h80v200H640ZM120-640v-200h200v80H200v120h-80Zm640 0v-120H640v-80h200v200h-80Z"/></symbol>
+  <symbol id="ic-expand_more" viewBox="0 -960 960 960"><path d="M480-360 280-560h400L480-360Z"/></symbol>
+  <symbol id="ic-history" viewBox="0 -960 960 960"><path d="M480-160q-134 0-227-93t-93-227q0-134 93-227t227-93q69 0 132 28.5T720-690v-110h80v280H520v-80h168q-32-56-87.5-88T480-720q-100 0-170 70t-70 170q0 100 70 170t170 70q77 0 139-44t87-116h84q-28 106-114 173t-196 67Zm-40-160h80v-200h-80v200Z"/></symbol>
+  <symbol id="ic-delete" viewBox="0 -960 960 960"><path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T760-120H280Zm480-600H280v520h480v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"/></symbol>
+  <symbol id="ic-add" viewBox="0 -960 960 960"><path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z"/></symbol>
+  <symbol id="ic-close" viewBox="0 -960 960 960"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></symbol>
+  <symbol id="ic-search" viewBox="0 -960 960 960"><path d="M784-120 532-372q-30 24-69 38t-83 14q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l252 252-56 56ZM380-400q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Z"/></symbol>
+</svg>
+
+<div class="container">
+  <!-- BANNER MODO PRESENTACIÓN -->
+  <div class="exit-presentation-banner" id="banner-exit-presentation">
+    <span>
+      <svg class="ic"><use href="#ic-fullscreen"></use></svg>
+      <strong>Modo Presentación Académica Activo</strong> — Formulario oculto y tipografía ampliada para proyección.
+    </span>
+    <button type="button" class="btn btn-outline" id="btn-salir-presentacion" style="background:#ffffff; color:var(--azul-900); padding:0.35rem 0.8rem; font-size:0.85rem;">
+      <svg class="ic"><use href="#ic-restart_alt"></use></svg> Salir de Presentación
+    </button>
+  </div>
+
+  <!-- ENCABEZADO -->
+  <header class="main-header">
+    <div>
+      <h1>
+        <svg class="ic"><use href="#ic-balance"></use></svg>
+        <span>Sistema de Cálculo de Planilla y Honorarios con Alertas Jurídicas</span>
+      </h1>
+      <div class="subheading">República de El Salvador · Actividad Académica de Derecho Laboral</div>
+    </div>
+    <div class="header-actions">
+      <!-- Alternador de Tema -->
+      <button type="button" class="btn btn-outline" id="btn-theme" title="Alternar entre modo claro y modo oscuro">
+        <svg class="ic" id="theme-icon"><use href="#ic-dark_mode"></use></svg>
+        <span id="theme-btn-label">Modo Oscuro</span>
+      </button>
+      <!-- Modo Pantalla Completa / Presentación -->
+      <button type="button" class="btn btn-outline" id="btn-fullscreen" title="Modo presentación para proyectar en clase">
+        <svg class="ic"><use href="#ic-fullscreen"></use></svg>
+        <span>Presentación</span>
+      </button>
+      <!-- Comparador de Regímenes (Función Estrella) -->
+      <button type="button" class="btn btn-outline" id="btn-comparar" title="Comparar Régimen Laboral vs Prestación de Servicios con el mismo monto bruto">
+        <svg class="ic"><use href="#ic-compare_arrows"></use></svg>
+        <span>Comparar Regímenes</span>
+      </button>
+      <button type="button" class="btn btn-accent" id="btn-ejemplo" title="Cargar un caso práctico que activa múltiples alertas">
+        <svg class="ic"><use href="#ic-science"></use></svg> Cargar caso de ejemplo
+      </button>
+      <button type="button" class="btn btn-outline" id="btn-csv" title="Exportar reporte y liquidación en formato CSV">
+        <svg class="ic"><use href="#ic-download"></use></svg> Exportar CSV
+      </button>
+      <button type="button" class="btn btn-outline" id="btn-imprimir" title="Generar boleta formal y reporte para imprimir o guardar PDF">
+        <svg class="ic"><use href="#ic-print"></use></svg> Imprimir / PDF
+      </button>
+      <button type="button" class="btn btn-outline" id="btn-limpiar" title="Reiniciar formulario y dejar todo en blanco">
+        <svg class="ic"><use href="#ic-restart_alt"></use></svg> Dejar en blanco
+      </button>
+    </div>
+  </header>
+
+  <!-- NAVEGACIÓN ENTRE MODOS -->
+  <nav class="mode-nav">
+    <button type="button" class="mode-tab active" id="tab-laboral" data-mode="laboral">
+      <svg class="ic"><use href="#ic-payments"></use></svg>
+      <span>Régimen Laboral (Contrato de Trabajo)</span>
+    </button>
+    <button type="button" class="mode-tab" id="tab-servicios" data-mode="servicios">
+      <svg class="ic"><use href="#ic-handshake"></use></svg>
+      <span>Prestación de Servicios (Servicios Profesionales)</span>
+    </button>
+  </nav>
+
+  <!-- CONTENEDOR PRINCIPAL DOS COLUMNAS -->
+  <main class="main-grid">
+    <!-- COLUMNA IZQUIERDA: FORMULARIO DE ENTRADA -->
+    <section class="card" id="form-column">
+      <h2 class="card-title" id="form-title">
+        <svg class="ic"><use href="#ic-person"></use></svg>
+        <span>Datos del Trabajador y Remuneración</span>
+      </h2>
+      <form id="payroll-form" autocomplete="off">
+
+        <!-- ================= CAMPOS MODO LABORAL ================= -->
+        <div id="fields-laboral">
+          <div class="form-group">
+            <label class="form-label" for="nombre">
+              <svg class="ic"><use href="#ic-person"></use></svg>
+              <span>Nombre completo del trabajador</span> <span class="required">*</span>
+            </label>
+            <input type="text" id="nombre" class="form-control" placeholder="Ingrese nombre del trabajador">
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="cargo">
+                <svg class="ic"><use href="#ic-work"></use></svg>
+                <span>Cargo u ocupación</span> <span class="required">*</span>
+              </label>
+              <input type="text" id="cargo" class="form-control" placeholder="Ingrese cargo u ocupación">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="tipoTrabajador">
+                <span>Tipo de contrato</span> <span class="required">*</span>
+              </label>
+              <select id="tipoTrabajador" class="form-control">
+                <option value="Permanente">Permanente</option>
+                <option value="Temporal">Temporal</option>
+                <option value="Aprendiz">Aprendiz</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="sectorEconomico">
+                <span>Sector económico</span> <span class="required">*</span>
+              </label>
+              <select id="sectorEconomico" class="form-control">
+                <!-- Cargado dinámicamente desde PARAMS -->
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="antiguedadAnios">
+                <span>Antigüedad laboral</span>
+              </label>
+              <select id="antiguedadAnios" class="form-control">
+                <option value="1">1 a 3 años (15 días aguinaldo)</option>
+                <option value="5">3 a 10 años (19 días aguinaldo)</option>
+                <option value="12">Más de 10 años (21 días aguinaldo)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="salarioBruto">
+              <svg class="ic"><use href="#ic-attach_money"></use></svg>
+              <span>Salario bruto mensual pactado (USD $)</span> <span class="required">*</span>
+            </label>
+            <input type="number" id="salarioBruto" class="form-control tabular" step="0.01" min="0" placeholder="0.00">
+          </div>
+
+          <!-- SECCIÓN PENSIÓN ALIMENTICIA -->
+          <div class="checkbox-box">
+            <label class="checkbox-label" for="tienePension">
+              <input type="checkbox" id="tienePension">
+              <span style="display:flex; align-items:center; gap:0.4rem;">
+                <svg class="ic"><use href="#ic-family_restroom"></use></svg>
+                Tiene orden de pensión alimenticia
+              </span>
+            </label>
+            <div id="panel-pension" class="conditional-panel">
+              <div class="form-row">
+                <div class="form-group" style="margin-bottom:0;">
+                  <label class="form-label" for="montoPension">Monto mensual ($)</label>
+                  <input type="number" id="montoPension" class="form-control tabular" step="0.01" min="0" placeholder="0.00">
+                </div>
+                <div class="form-group" style="margin-bottom:0;">
+                  <label class="form-label" for="autoridadPension">Autoridad que la ordenó</label>
+                  <select id="autoridadPension" class="form-control">
+                    <option value="Juzgado de Familia">Juzgado de Familia</option>
+                    <option value="Procuraduría General de la República (PGR)">Procuraduría General de la República (PGR)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- SECCIÓN EMBARGO DEUDA ORDINARIA -->
+          <div class="checkbox-box">
+            <label class="checkbox-label" for="tieneEmbargo">
+              <input type="checkbox" id="tieneEmbargo">
+              <span style="display:flex; align-items:center; gap:0.4rem;">
+                <svg class="ic"><use href="#ic-gavel"></use></svg>
+                Tiene embargo por deuda ordinaria
+              </span>
+            </label>
+            <div id="panel-embargo" class="conditional-panel">
+              <div class="form-row">
+                <div class="form-group" style="margin-bottom:0;">
+                  <label class="form-label" for="montoEmbargo">Monto a retener ($)</label>
+                  <input type="number" id="montoEmbargo" class="form-control tabular" step="0.01" min="0" placeholder="0.00">
+                </div>
+                <div class="form-group" style="margin-bottom:0;">
+                  <label class="form-label" for="ordenJudicialEmbargo">¿Existe orden judicial?</label>
+                  <select id="ordenJudicialEmbargo" class="form-control">
+                    <option value="Si">Sí, existe auto judicial</option>
+                    <option value="No">No existe orden judicial</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================= CAMPOS MODO SERVICIOS PROFESIONALES ================= -->
+        <div id="fields-servicios" style="display: none;">
+          <div class="form-group">
+            <label class="form-label" for="nombreServicios">
+              <svg class="ic"><use href="#ic-person"></use></svg>
+              <span>Nombre del prestador de servicios</span> <span class="required">*</span>
+            </label>
+            <input type="text" id="nombreServicios" class="form-control" placeholder="Ingrese nombre del prestador">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="servicioContratado">
+              <svg class="ic"><use href="#ic-work"></use></svg>
+              <span>Servicio contratado / Objeto contractual</span> <span class="required">*</span>
+            </label>
+            <input type="text" id="servicioContratado" class="form-control" placeholder="Ingrese servicio u objeto del contrato">
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="honorariosBrutos">
+                <svg class="ic"><use href="#ic-attach_money"></use></svg>
+                <span>Honorarios pactados brutos (USD $)</span> <span class="required">*</span>
+              </label>
+              <input type="number" id="honorariosBrutos" class="form-control tabular" step="0.01" min="0" placeholder="0.00">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="periodicidadPago">Periodicidad del pago <span class="required">*</span></label>
+              <select id="periodicidadPago" class="form-control">
+                <option value="Mensual fija">Mensual fija</option>
+                <option value="Por entregable">Por entregable / Hito</option>
+                <option value="Por hora">Por hora</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="duracionMeses">Duración del contrato (meses)</label>
+              <input type="number" id="duracionMeses" class="form-control" min="1" step="1" placeholder="Ej. 6">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="sectorReferenciaServicios">Sector de referencia (Salario mínimo)</label>
+              <select id="sectorReferenciaServicios" class="form-control">
+                <!-- Cargado dinámicamente -->
+              </select>
+            </div>
+          </div>
+
+          <div class="checkbox-box">
+            <label class="checkbox-label" for="renovadoSucesivamente">
+              <input type="checkbox" id="renovadoSucesivamente">
+              <span>¿Ha sido renovado sucesivamente?</span>
+            </label>
+            <div id="panel-renovaciones" class="conditional-panel">
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label" for="numRenovaciones">Número de contratos o prórrogas consecutivas:</label>
+                <input type="number" id="numRenovaciones" class="form-control" min="1" step="1" placeholder="0">
+              </div>
+            </div>
+          </div>
+
+          <div class="checkbox-box">
+            <label class="checkbox-label" for="inscritoIVA">
+              <input type="checkbox" id="inscritoIVA">
+              <span>¿Está inscrito como contribuyente de IVA? (Emite Factura/CCF con 13% IVA)</span>
+            </label>
+          </div>
+
+          <div class="checkbox-box">
+            <label class="checkbox-label" for="afiliacionVoluntaria">
+              <input type="checkbox" id="afiliacionVoluntaria">
+              <span>Afiliación voluntaria a la seguridad social (ISSS / AFP)</span>
+            </label>
+            <small style="display:block; margin-top:0.35rem; color:var(--text-muted); font-size:0.8rem;">
+              En régimen de servicios no aplican cotizaciones obligatorias. Marcar solo si el profesional ejerce su derecho legal de cotización voluntaria independiente.
+            </small>
+          </div>
+
+          <div class="checkbox-box" style="border-color:var(--rojo-borde); background-color:var(--rojo-suave);">
+            <label class="checkbox-label" for="descuentaCotizacionesSinVoluntaria" style="color:var(--rojo-texto);">
+              <input type="checkbox" id="descuentaCotizacionesSinVoluntaria">
+              <span>El contratante descontó ISSS o AFP sin mediar afiliación voluntaria</span>
+            </label>
+            <small style="display:block; margin-top:0.35rem; color:var(--rojo-texto); font-size:0.8rem;">
+              Marcar si se está imponiendo deducción de planilla laboral a un contrato formalizado por servicios profesionales.
+            </small>
+          </div>
+
+          <!-- BLOQUE DE INDICADORES DE SUBORDINACIÓN JURÍDICA -->
+          <div class="subordinacion-box">
+            <div class="subordinacion-title">
+              <span style="display:flex; align-items:center; gap:0.4rem;">
+                <svg class="ic"><use href="#ic-search"></use></svg>
+                <span>Indicadores de Subordinación Jurídica (Test Laboral)</span>
+              </span>
+              <span class="subordinacion-badge" id="badge-subordinacion-count">0 seleccionados</span>
+            </div>
+            <p class="subordinacion-desc">
+              Marque las situaciones que ocurren en la práctica real cotidiana. El principio de <strong>primacía de la realidad</strong> prevalece sobre cualquier cláusula contractual escrita.
+            </p>
+
+            <div class="indicador-item">
+              <label class="checkbox-label">
+                <input type="checkbox" class="check-subordinacion" value="Cumple horario fijo establecido por el contratante">
+                <span>1. Cumple horario fijo establecido por el contratante</span>
+              </label>
+            </div>
+            <div class="indicador-item">
+              <label class="checkbox-label">
+                <input type="checkbox" class="check-subordinacion" value="Recibe órdenes o instrucciones directas de una jefatura">
+                <span>2. Recibe órdenes o instrucciones directas de una jefatura</span>
+              </label>
+            </div>
+            <div class="indicador-item">
+              <label class="checkbox-label">
+                <input type="checkbox" class="check-subordinacion" value="Usa herramientas, equipo o instalaciones del contratante">
+                <span>3. Usa herramientas, equipo o instalaciones del contratante</span>
+              </label>
+            </div>
+            <div class="indicador-item">
+              <label class="checkbox-label">
+                <input type="checkbox" class="check-subordinacion" value="Trabaja en exclusividad para el contratante">
+                <span>4. Trabaja en exclusividad para el contratante</span>
+              </label>
+            </div>
+            <div class="indicador-item">
+              <label class="checkbox-label">
+                <input type="checkbox" class="check-subordinacion" value="Recibe un pago fijo y periódico, igual cada mes">
+                <span>5. Recibe un pago fijo y periódico, igual cada mes</span>
+              </label>
+            </div>
+            <div class="indicador-item">
+              <label class="checkbox-label">
+                <input type="checkbox" class="check-subordinacion" value="Realiza labores propias del giro ordinario y permanente de la empresa">
+                <span>6. Realiza labores propias del giro ordinario y permanente de la empresa</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================= SECCIÓN COMPARTIDA: OTROS DESCUENTOS ================= -->
+        <div class="form-group">
+          <label class="form-label" style="display:flex; justify-content:space-between; align-items:center;">
+            <span id="label-otros-descuentos">Otros descuentos extraordinarios o bancarios</span>
+            <span style="font-size:0.8rem; font-weight:normal; color:var(--text-muted);">(Préstamos bancarios, daños, anticipos, etc.)</span>
+          </label>
+          <div id="otros-descuentos-container">
+            <!-- Filas dinámicas -->
+          </div>
+          <button type="button" id="btn-add-descuento" class="btn btn-add">
+            <svg class="ic"><use href="#ic-add"></use></svg> <span>Agregar descuento</span>
+          </button>
+        </div>
+
+        <!-- SECCIÓN RETENCIÓN / COTIZACIÓN NO ENTERADA -->
+        <div class="checkbox-box" style="border-color:var(--rojo-borde); background-color:var(--rojo-suave);">
+          <label class="checkbox-label" for="retencionNoEnterada" style="color:var(--rojo-texto);">
+            <input type="checkbox" id="retencionNoEnterada">
+            <span id="label-retencion-no-enterada">Cotización retenida pero NO enterada a la institución (ISSS / AFP)</span>
+          </label>
+          <small id="desc-retencion-no-enterada" style="display:block; margin-top:0.35rem; color:var(--rojo-texto); font-size:0.8rem;">
+            Marque esta casilla si el patrono o contratante retuvo los importes pero no los remitió oportunamente a las instituciones recaudadoras.
+          </small>
+        </div>
+
+        <button type="submit" class="btn btn-primary" id="btn-submit-form" style="width: 100%; font-size: 1.05rem; padding: 0.85rem;">
+          <svg class="ic"><use href="#ic-calculate"></use></svg> Calcular Liquidación y Evaluar Alertas
+        </button>
+      </form>
+    </section>
+
+    <!-- COLUMNA DERECHA: RESULTADOS Y ALERTAS -->
+    <section id="results-column">
+      
+      <!-- TARJETA BOLETA DE LIQUIDACIÓN / HONORARIOS -->
+      <div class="card" id="boleta-card">
+        <h2 class="card-title" id="boleta-titulo">
+          <svg class="ic"><use href="#ic-receipt_long"></use></svg>
+          <span id="boleta-titulo-text">Boleta de Liquidación de Remuneración</span>
+        </h2>
+
+        <!-- Resumen del Trabajador / Prestador -->
+        <div class="worker-badge-bar">
+          <div class="worker-badge-item">
+            <div class="badge-label" id="lbl-res-nombre">Trabajador</div>
+            <div class="badge-value" id="res-nombre">—</div>
+          </div>
+          <div class="worker-badge-item">
+            <div class="badge-label" id="lbl-res-cargo">Cargo</div>
+            <div class="badge-value" id="res-cargo">—</div>
+          </div>
+          <div class="worker-badge-item">
+            <div class="badge-label" id="lbl-res-tipo">Régimen</div>
+            <div class="badge-value" id="res-tipo">—</div>
+          </div>
+          <div class="worker-badge-item">
+            <div class="badge-label" id="lbl-res-sector">Sector Referencia</div>
+            <div class="badge-value" id="res-sector">—</div>
+          </div>
+          <div class="worker-badge-item">
+            <div class="badge-label">Mínimo Sector</div>
+            <div class="badge-value tabular" id="res-minimo-sector">—</div>
+          </div>
+        </div>
+
+        <!-- HERO SALARIO / HONORARIOS LÍQUIDO -->
+        <div class="hero-salario">
+          <div class="hero-tag" id="hero-tag-title">Salario Líquido Final a Percibir</div>
+          <div class="hero-monto tabular" id="res-salario-liquido">$0.00</div>
+          <div class="hero-sub" id="res-liquido-porcentaje">Ingrese los datos y presione Calcular</div>
+        </div>
+
+        <!-- TABLA DE DESGLOSE -->
+        <div class="table-container">
+          <table class="payroll-table">
+            <thead>
+              <tr>
+                <th>Concepto</th>
+                <th>Base de Cálculo / Fundamento</th>
+                <th style="text-align:center;">Operación</th>
+                <th style="text-align:right;">Monto (USD)</th>
+              </tr>
+            </thead>
+            <tbody id="payroll-breakdown-body">
+              <tr>
+                <td colspan="4" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                  El formulario está en blanco. Complete los campos a la izquierda y presione <strong>"Calcular Liquidación y Evaluar Alertas"</strong>, o cargue un caso práctico con <strong>"Cargar caso de ejemplo"</strong>.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- CAJA DE IVA (SOLO MODO SERVICIOS SI ESTÁ INSCRITO) -->
+        <div class="iva-callout-box" id="iva-callout" style="display:none;">
+          <div>
+            <strong>Impuesto a la Transferencia de Bienes Muebles y a la Prestación de Servicios (IVA 13%):</strong>
+            <div style="font-size:0.8rem; color:var(--azul-info-texto); margin-top:0.2rem;">
+              No es parte de la contraprestación del prestador — se entera íntegramente al fisco (DGII).
+            </div>
+          </div>
+          <div style="text-align:right;">
+            <div class="val-iva tabular" id="res-iva-monto" style="font-size:1.15rem;">$0.00</div>
+            <small style="color:var(--azul-info-texto);">Total Facturado: <span class="tabular" id="res-total-facturado-iva">$0.00</span></small>
+          </div>
+        </div>
+
+        <!-- Botón Guardar y Agregar a la Planilla Multi-Trabajador -->
+        <button type="button" class="btn btn-accent" id="btn-agregar-planilla" style="width: 100%; margin-top: 1.25rem; font-size: 1rem; padding: 0.8rem;" title="Guardar este caso en la planilla multi-trabajador">
+          <svg class="ic"><use href="#ic-groups"></use></svg>
+          <span>Guardar y Agregar a la Planilla de Personal</span>
+        </button>
+      </div>
+
+      <!-- PARTE 3 — PANEL "COSTO TOTAL DEL EMPLEADOR" -->
+      <div class="patronal-collapsible" id="panel-costo-empleador">
+        <button type="button" class="patronal-toggle-btn" id="btn-toggle-costo-patrono">
+          <span style="display:flex; align-items:center; gap:0.5rem;">
+            <svg class="ic"><use href="#ic-business_center"></use></svg>
+            <span id="patronal-box-title">Costo Total del Empleador y Provisiones de Ley</span>
+          </span>
+          <svg class="ic" id="icon-expand-patronal"><use href="#ic-expand_more"></use></svg>
+        </button>
+        <div class="patronal-content" id="patronal-content-body">
+          <div class="table-container" style="margin-bottom:0.75rem;">
+            <table class="payroll-table">
+              <thead>
+                <tr>
+                  <th>Concepto Patronal / Prestación</th>
+                  <th>Tasa / Base de Provisión Legal</th>
+                  <th style="text-align:right;">Monto Mensual</th>
+                </tr>
+              </thead>
+              <tbody id="patronal-table-body">
+                <tr>
+                  <td colspan="3" style="text-align:center; color:var(--text-muted); padding:1rem;">
+                    Calcule una planilla para visualizar el desglose detallado de cargas patronales y provisiones.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="costo-total-card">
+            <div>
+              <div style="font-size:0.82rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--azul-100); font-weight:700;">
+                Costo Total Mensual Consolidado
+              </div>
+              <div style="font-size:0.85rem; color:var(--gris-300); margin-top:0.2rem;">
+                Salario Bruto + Cargas de Seguridad Social + Provisiones de Prestaciones
+              </div>
+              <div class="costo-ratio-note" id="res-costo-ratio-line">
+                <svg class="ic"><use href="#ic-info"></use></svg>
+                <span id="txt-costo-ratio">Por cada $1.00 de salario, el empleador eroga $0.00</span>
+              </div>
+            </div>
+            <div class="tabular" id="res-costo-total-empleador" style="font-size:1.65rem; font-weight:800; color:#38bdf8;">
+              $0.00
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PANEL DE ALERTAS JURÍDICAS -->
+      <div class="card alerts-section" id="alerts-card">
+        <h2 class="card-title">
+          <svg class="ic"><use href="#ic-gavel"></use></svg>
+          <span>Dictamen y Alertas Jurídico-Laborales</span>
+        </h2>
+
+        <!-- Barra de contadores -->
+        <div class="alerts-counter-bar">
+          <div class="counter-title">
+            <span>Diagnóstico del Caso:</span>
+            <span id="alerts-status-text">Pendiente de evaluación</span>
+          </div>
+          <div class="counter-pills" id="alerts-pills-container">
+            <!-- Pastillas con el conteo de severidades -->
+          </div>
+        </div>
+
+        <!-- Lista de tarjetas de alertas -->
+        <div id="alerts-list-container">
+          <div style="text-align:center; padding: 1.5rem; color: var(--text-muted); background-color: var(--gris-50); border-radius: 8px;">
+            Esperando ingreso de datos para evaluar el cumplimiento del ordenamiento jurídico salvadoreño.
+          </div>
+        </div>
+
+        <!-- REGLA DE ORO FIJA PARA MODO SERVICIOS PROFESIONALES -->
+        <div class="regla-de-oro-box" id="regla-de-oro" style="display: none;">
+          <div class="regla-title">
+            <svg class="ic"><use href="#ic-balance"></use></svg>
+            <span>Regla de Oro del Derecho Laboral — Primacía de la Realidad</span>
+          </div>
+          <div class="regla-text">
+            "La denominación del contrato no determina su naturaleza. Si concurren los elementos de subordinación, la relación es laboral aunque se documente como prestación de servicios."
+          </div>
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+  <!-- ==========================================================================
+       PARTE 5 — PLANILLA CONSOLIDADA DE PERSONAL (VARIOS TRABAJADORES)
+       ========================================================================== -->
+  <section class="card planilla-section" id="seccion-planilla">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1.25rem;">
+      <h2 class="card-title" style="margin-bottom:0;">
+        <svg class="ic"><use href="#ic-groups"></use></svg>
+        <span>Planilla Consolidada de Personal (Multi-Trabajador)</span>
+      </h2>
+      <div style="display:flex; gap:0.5rem;">
+        <button type="button" class="btn btn-outline" id="btn-limpiar-planilla" style="font-size:0.85rem; padding:0.45rem 0.85rem;" title="Eliminar todos los registros guardados">
+          <svg class="ic"><use href="#ic-delete"></use></svg> Vaciar Planilla
+        </button>
+      </div>
+    </div>
+
+    <!-- Barra de Índice de Cumplimiento -->
+    <div class="cumplimiento-container">
+      <div class="cumplimiento-header">
+        <div class="cumplimiento-title">
+          <svg class="ic"><use href="#ic-balance"></use></svg>
+          <span>Índice de Cumplimiento Jurídico-Laboral:</span>
+        </div>
+        <div class="cumplimiento-score" id="txt-cumplimiento-pct" style="color:var(--verde);">100%</div>
+      </div>
+      <div class="cumplimiento-bar">
+        <div class="cumplimiento-fill" id="cumplimiento-fill" style="width:100%; background-color:var(--verde);"></div>
+      </div>
+      <div class="cumplimiento-sub" id="txt-cumplimiento-desc">
+        100% de expedientes de personal sin infracciones críticas (alertas rojas detectadas: 0).
+      </div>
+    </div>
+
+    <!-- Tabla Resumen de Planilla -->
+    <div class="table-container">
+      <table class="payroll-table">
+        <thead>
+          <tr>
+            <th>Nombre del Trabajador / Prestador</th>
+            <th>Cargo / Servicio</th>
+            <th>Régimen</th>
+            <th style="text-align:right;">Ingreso Bruto</th>
+            <th style="text-align:right;">Deducciones</th>
+            <th style="text-align:right;">Líquido a Pagar</th>
+            <th style="text-align:center;">Dictamen Alertas</th>
+            <th style="text-align:center;">Acción</th>
+          </tr>
+        </thead>
+        <tbody id="planilla-table-body">
+          <tr>
+            <td colspan="8" style="text-align:center; color:var(--text-muted); padding:1.75rem;">
+              No hay colaboradores registrados en la planilla. Ingrese un expediente y presione <strong>"Guardar y Agregar a la Planilla de Personal"</strong>.
+            </td>
+          </tr>
+        </tbody>
+        <tfoot id="planilla-table-footer" style="display:none; font-weight:700; background-color:var(--gris-100);">
+          <tr>
+            <td colspan="3" id="planilla-footer-count">TOTALES (0 registros)</td>
+            <td style="text-align:right;" class="tabular val-positive" id="planilla-total-bruto">$0.00</td>
+            <td style="text-align:right;" class="tabular val-negative" id="planilla-total-deducciones">$0.00</td>
+            <td style="text-align:right;" class="tabular" style="color:var(--azul-600);" id="planilla-total-liquido">$0.00</td>
+            <td colspan="2" style="text-align:center;" id="planilla-footer-resumen">—</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       PARTE 4 — MODAL COMPARADOR DE REGÍMENES (LA FUNCIÓN ESTRELLA)
+       ========================================================================== -->
+  <div class="comparador-overlay" id="modal-comparador">
+    <div class="comparador-modal">
+      <div class="comparador-header">
+        <div>
+          <h2 style="font-size:1.45rem; font-weight:800; display:flex; align-items:center; gap:0.5rem; color:var(--azul-600);">
+            <svg class="ic"><use href="#ic-compare_arrows"></use></svg>
+            <span>Comparativa Directa de Regímenes Contractuales</span>
+          </h2>
+          <p style="font-size:0.92rem; color:var(--text-muted); margin-top:0.25rem;">
+            Análisis simulado con el mismo monto bruto pactado de <strong id="comp-monto-base" class="tabular">$0.00</strong> mensuales.
+          </p>
+        </div>
+        <button type="button" class="btn btn-outline" id="btn-cerrar-comparador" style="font-size:0.9rem; padding:0.45rem 0.85rem;">
+          <span style="display:flex; align-items:center; gap:0.35rem;">
+            <span>Cerrar</span>
+            <svg class="ic" style="width:1em; height:1em;"><use href="#ic-close"></use></svg>
+          </span>
+        </button>
+      </div>
+
+      <!-- VISTA EN DOS COLUMNAS -->
+      <div class="comparador-grid">
+        <!-- Columna A: Régimen Laboral -->
+        <div class="col-comparador laboral">
+          <div class="col-comparador-title">
+            <svg class="ic"><use href="#ic-payments"></use></svg>
+            <span>Régimen Laboral (Contrato de Trabajo)</span>
+          </div>
+          <p style="font-size:0.85rem; color:var(--text-muted);">
+            Regido por el Código de Trabajo y leyes de seguridad social. Subordinación jurídica plena.
+          </p>
+
+          <div style="margin: 1rem 0; padding: 0.85rem; background:var(--bg-card); border-radius:6px; border:1px solid var(--border-color);">
+            <div style="display:flex; justify-content:space-between; margin-bottom:0.35rem;">
+              <span>Salario Bruto:</span>
+              <strong class="tabular" id="comp-lab-bruto">$0.00</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; color:var(--rojo); margin-bottom:0.35rem;">
+              <span>Deducciones de Ley (ISSS/AFP/ISR):</span>
+              <strong class="tabular" id="comp-lab-deducciones">-$0.00</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; font-size:1.15rem; font-weight:800; color:var(--azul-600); border-top:1px solid var(--border-color); padding-top:0.35rem;">
+              <span>Salario Líquido:</span>
+              <span class="tabular" id="comp-lab-liquido">$0.00</span>
+            </div>
+          </div>
+
+          <h4 style="font-size:0.88rem; text-transform:uppercase; letter-spacing:0.04em; color:var(--text-muted); font-weight:700;">
+            Derechos y Coberturas que SÍ Tiene:
+          </h4>
+          <ul class="benefit-list">
+            <li class="benefit-item">
+              <svg class="ic ic-verde" style="width:1.25em; height:1.25em; flex-shrink:0; margin-top:0.15rem;"><use href="#ic-check_circle"></use></svg>
+              <span><strong>Cobertura médica y subsidios (ISSS):</strong> Atención en salud para el trabajador y familia, subsidio por incapacidad y maternidad.</span>
+            </li>
+            <li class="benefit-item">
+              <svg class="ic ic-verde" style="width:1.25em; height:1.25em; flex-shrink:0; margin-top:0.15rem;"><use href="#ic-check_circle"></use></svg>
+              <span><strong>Ahorro previsional obligatorio (AFP):</strong> Acumulación obligatoria para pensión vitalicia por vejez, invalidez y sobrevivencia.</span>
+            </li>
+            <li class="benefit-item">
+              <svg class="ic ic-verde" style="width:1.25em; height:1.25em; flex-shrink:0; margin-top:0.15rem;"><use href="#ic-check_circle"></use></svg>
+              <span><strong>Aguinaldo legal anual garantizado:</strong> Prima obligatoria de 15 a 21 días de salario pagadera en diciembre.</span>
+            </li>
+            <li class="benefit-item">
+              <svg class="ic ic-verde" style="width:1.25em; height:1.25em; flex-shrink:0; margin-top:0.15rem;"><use href="#ic-check_circle"></use></svg>
+              <span><strong>Vacación anual con recargo del 30%:</strong> 15 días de descanso remunerado más el 30% de bonificación legal sobre dicho lapso.</span>
+            </li>
+            <li class="benefit-item">
+              <svg class="ic ic-verde" style="width:1.25em; height:1.25em; flex-shrink:0; margin-top:0.15rem;"><use href="#ic-check_circle"></use></svg>
+              <span><strong>Indemnización por despido injustificado:</strong> 30 días de salario por cada año laborado en caso de terminación incausada.</span>
+            </li>
+            <li class="benefit-item">
+              <svg class="ic ic-verde" style="width:1.25em; height:1.25em; flex-shrink:0; margin-top:0.15rem;"><use href="#ic-check_circle"></use></svg>
+              <span><strong>Estabilidad y jornada reglamentada:</strong> Límite de 8 horas diarias / 44 semanales, pago de recargo por horas extraordinarias y asuetos.</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Columna B: Prestación de Servicios -->
+        <div class="col-comparador servicios">
+          <div class="col-comparador-title">
+            <svg class="ic"><use href="#ic-handshake"></use></svg>
+            <span>Prestación de Servicios (Profesionales)</span>
+          </div>
+          <p style="font-size:0.85rem; color:var(--text-muted);">
+            Regido por el Código Civil / Código de Comercio. Autonomía de gestión e independencia técnica.
+          </p>
+
+          <div style="margin: 1rem 0; padding: 0.85rem; background:var(--bg-card); border-radius:6px; border:1px solid var(--border-color);">
+            <div style="display:flex; justify-content:space-between; margin-bottom:0.35rem;">
+              <span>Honorarios Brutos:</span>
+              <strong class="tabular" id="comp-ser-bruto">$0.00</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; color:var(--rojo); margin-bottom:0.35rem;">
+              <span>Retención Impuesto sobre la Renta (10%):</span>
+              <strong class="tabular" id="comp-ser-deducciones">-$0.00</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; font-size:1.15rem; font-weight:800; color:var(--ambar); border-top:1px solid var(--border-color); padding-top:0.35rem;">
+              <span>Líquido Recibido (Mayor Efectivo):</span>
+              <span class="tabular" id="comp-ser-liquido">$0.00</span>
+            </div>
+          </div>
+
+          <h4 style="font-size:0.88rem; text-transform:uppercase; letter-spacing:0.04em; color:var(--text-muted); font-weight:700;">
+            Prestaciones y Coberturas a las que se Renuncia:
+          </h4>
+          <ul class="benefit-list">
+            <li class="benefit-item">
+              <svg class="ic ic-rojo" style="width:1.25em; height:1.25em; flex-shrink:0; margin-top:0.15rem;"><use href="#ic-error"></use></svg>
+              <span><strong>Sin cobertura de salud médica patronal:</strong> No hay afiliación al ISSS; cualquier gasto médico o accidente corre 100% por su cuenta.</span>
+            </li>
+            <li class="benefit-item">
+              <svg class="ic ic-rojo" style="width:1.25em; height:1.25em; flex-shrink:0; margin-top:0.15rem;"><use href="#ic-error"></use></svg>
+              <span><strong>Sin cotización patronal previsional:</strong> No se aporta cuota patronal a la AFP para la jubilación ni existe seguro de invalidez patronal.</span>
+            </li>
+            <li class="benefit-item">
+              <svg class="ic ic-rojo" style="width:1.25em; height:1.25em; flex-shrink:0; margin-top:0.15rem;"><use href="#ic-error"></use></svg>
+              <span><strong>Sin derecho a aguinaldo legal:</strong> Ninguna gratificación navideña obligatoria por ley.</span>
+            </li>
+            <li class="benefit-item">
+              <svg class="ic ic-rojo" style="width:1.25em; height:1.25em; flex-shrink:0; margin-top:0.15rem;"><use href="#ic-error"></use></svg>
+              <span><strong>Sin vacación anual remunerada:</strong> Días no laborados no son remunerados; no existe el recargo del 30% de prima vacacional.</span>
+            </li>
+            <li class="benefit-item">
+              <svg class="ic ic-rojo" style="width:1.25em; height:1.25em; flex-shrink:0; margin-top:0.15rem;"><use href="#ic-error"></use></svg>
+              <span><strong>Sin indemnización por despido:</strong> El contrato concluye por vencimiento de plazo o rescisión civil sin derecho a pago de pasivo laboral.</span>
+            </li>
+            <li class="benefit-item">
+              <svg class="ic ic-rojo" style="width:1.25em; height:1.25em; flex-shrink:0; margin-top:0.15rem;"><use href="#ic-error"></use></svg>
+              <span><strong>Sin jornada máxima ni horas extras:</strong> No rige el límite de 44 horas ni recargos por nocturnidad o días de asueto.</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- RECUADRO DESTACADO DE BALANCE -->
+      <div class="balance-highlight-card">
+        <div>
+          <div class="balance-item-title">Diferencia Inmediata en Efectivo</div>
+          <div class="balance-item-val" id="comp-diferencia-efectivo" style="color:#86efac;">+$0.00 / mes</div>
+          <div class="balance-item-desc">
+            En servicios profesionales el líquido inmediato es mayor debido a que no se retienen cuotas obreras de seguridad social (ISSS 3% y AFP 7.25%).
+          </div>
+        </div>
+        <div>
+          <div class="balance-item-title">Prestaciones y Coberturas Renunciadas</div>
+          <div class="balance-item-val" id="comp-prestaciones-renunciadas" style="color:#fca5a5;">-$0.00 / mes</div>
+          <div class="balance-item-desc">
+            Equivalente monetario mensual que el empleador eroga en aportes patronales (ISSS 7.5%, AFP 8.75%, INSAFORP 1%) y provisiones de aguinaldo, vacación e indemnización.
+          </div>
+        </div>
+      </div>
+
+      <!-- REGLA DE ORO FIJA AL PIE DEL MODAL -->
+      <div class="regla-de-oro-box" style="margin-top:1.25rem;">
+        <div class="regla-title">
+          <svg class="ic"><use href="#ic-balance"></use></svg>
+          <span>Principio Fundamental de Primacía de la Realidad</span>
+        </div>
+        <div class="regla-text">
+          "La denominación del contrato no determina su naturaleza. Si concurren los elementos de subordinación, la relación es laboral aunque se documente como prestación de servicios."
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PIE DE PÁGINA -->
+  <footer class="main-footer">
+    <div class="vigencia-note" id="vigencia-text">Valores vigentes según Decreto Ejecutivo — verificar gaceta oficial</div>
+    <div>Simulador Académico de Derecho Laboral y Tributario de El Salvador · Código de Trabajo, Código Procesal Civil y Mercantil (CPCM), Código de Familia, Código Tributario, Ley del Seguro Social, Ley SAP y Ley de INSAFORP.</div>
+  </footer>
+</div>
+
+<!-- ==========================================================================
+     BLOQUE A: PARÁMETROS LEGALES CENTRALIZADOS (PARAMS)
+     ========================================================================== -->
+<script>
+const PARAMS = {
+  vigencia: "Tarifas Oficiales Vigentes en El Salvador — Decretos Ejecutivos No. 11 y 12 ($408.80 Comercio e Industria, $402.32 Maquila, $272.53 Agropecuario)",
+  salariosMinimosMensuales: {
+    "comercio_servicios": 408.80,
+    "industria": 408.80,
+    "maquila_textil": 402.32,
+    "beneficio_cafe_cana": 305.23,
+    "agropecuario": 272.53
+  },
+  sectoresLabels: {
+    "comercio_servicios": "Comercio y Servicios ($408.80)",
+    "industria": "Industria ($408.80)",
+    "maquila_textil": "Maquila Textil y Confección ($402.32)",
+    "beneficio_cafe_cana": "Beneficio de Café y Recolección de Caña ($305.23)",
+    "agropecuario": "Sector Agropecuario y Pesca ($272.53)"
+  },
+  isss: {
+    porcentajeTrabajador: 0.03,
+    porcentajePatrono: 0.075,
+    techoCotizable: 1000.00
+  },
+  afp: {
+    porcentajeTrabajador: 0.0725,
+    porcentajePatrono: 0.0875,
+    techoCotizable: 8000.00
+  },
+  aportesPatronales: {
+    isss: 0.075,
+    afp: 0.0875,
+    insaforp: 0.01 // 1% aporte patronal obligatorio
+  },
+  prestaciones: {
+    diasAguinaldoPorAntiguedad: [
+      { desdeAnios: 1,  hastaAnios: 3,        dias: 15 },
+      { desdeAnios: 3,  hastaAnios: 10,       dias: 19 },
+      { desdeAnios: 10, hastaAnios: Infinity, dias: 21 }
+    ],
+    diasVacacion: 15,
+    recargoVacacion: 0.30,
+    diasIndemnizacionPorAnio: 30
+  },
+  isr_tramos_mensual: [
+    { desde: 0.00,    hasta: 472.00,   porcentaje: 0.00, cuotaFija: 0.00,   sobreExcesoDe: 0.00 },
+    { desde: 472.01,  hasta: 895.24,   porcentaje: 0.10, cuotaFija: 17.67,  sobreExcesoDe: 472.00 },
+    { desde: 895.25,  hasta: 2038.10,  porcentaje: 0.20, cuotaFija: 60.00,  sobreExcesoDe: 895.24 },
+    { desde: 2038.11, hasta: Infinity, porcentaje: 0.30, cuotaFija: 288.57, sobreExcesoDe: 2038.10 }
+  ],
+  limites: {
+    topeDescuentoBancarioArt136: 0.20,  // Tope del 20% del salario ordinario para préstamos bancarios/cooperativas (Art. 136 C.T.)
+    topeEmbargoDeudaOrdinaria: 0.20,    // % sobre el EXCEDENTE del salario mínimo (Art. 622 CPCM / C.T.)
+    alertaPensionAlimenticiaAlta: 0.30  // % del líquido que dispara alerta de revisión
+  },
+  servicios: {
+    porcentajeRetencionISR: 0.10, // 10% retención renta servicios profesionales (Art. 156 C. Trib)
+    porcentajeIVA: 0.13,          // 13% IVA aplicable si es contribuyente inscrito
+    umbralSubordinacionSimulacion: 3, // 3 o más indicadores disparan alerta ROJA
+    umbralDuracionMesesEncubierta: 12, // duración mayor a 12 meses
+    umbralRenovacionesEncubierta: 3   // 3 o más renovaciones
+  }
+};
+</script>
+
+<!-- ==========================================================================
+     BLOQUE B: FUNCIONES PURAS DE CÁLCULO
+     ========================================================================== -->
+<script>
+/**
+ * Calcula la remuneración, deducciones y costo del empleador.
+ * Función pura: NO interactúa con el DOM.
+ * 
+ * @param {Object} t - Datos del trabajador/prestador y deducciones
+ * @returns {Object} Desglose completo de percepciones, deducciones y totales.
+ */
+function calcularPlanilla(t) {
+  const modo = t.modo || "laboral";
+  const salarioMinimoSector = PARAMS.salariosMinimosMensuales[t.sector] || 0;
+
+  if (modo === "servicios") {
+    // -------------------------------------------------------------
+    // CÁLCULO MODO PRESTACIÓN DE SERVICIOS PROFESIONALES
+    // -------------------------------------------------------------
+    const honorariosBrutos = Math.max(0, Number(t.honorarios) || 0);
+
+    // 1. Retención de ISR por servicios: 10% fijo sobre honorarios brutos
+    const retencionISR = Math.round(honorariosBrutos * PARAMS.servicios.porcentajeRetencionISR * 100) / 100;
+
+    // 2. IVA 13% (si está inscrito como contribuyente, sumado aparte, se entera al fisco)
+    const iva = t.inscritoIVA ? Math.round(honorariosBrutos * PARAMS.servicios.porcentajeIVA * 100) / 100 : 0.00;
+    const totalFacturadoConIVA = Math.round((honorariosBrutos + iva) * 100) / 100;
+
+    // 3. Cotizaciones voluntarias o aplicadas indebidamente
+    let isssVoluntario = 0;
+    let afpVoluntaria = 0;
+    const aplicaCotizaciones = t.afiliacionVoluntaria || t.descuentaCotizacionesSinVoluntaria;
+    if (aplicaCotizaciones) {
+      const baseISSS = Math.min(honorariosBrutos, PARAMS.isss.techoCotizable);
+      isssVoluntario = Math.round(baseISSS * PARAMS.isss.porcentajeTrabajador * 100) / 100;
+      const baseAFP = Math.min(honorariosBrutos, PARAMS.afp.techoCotizable);
+      afpVoluntaria = Math.round(baseAFP * PARAMS.afp.porcentajeTrabajador * 100) / 100;
+    }
+
+    // 4. Otros descuentos pactados
+    let otrosDescuentosTotal = 0;
+    const listaOtrosDescuentos = Array.isArray(t.otrosDescuentos) ? t.otrosDescuentos.map(d => {
+      const val = Math.max(0, Number(d.monto) || 0);
+      otrosDescuentosTotal += val;
+      return {
+        descripcion: d.descripcion || "Descuento",
+        monto: val,
+        fundamento: d.fundamento || "Pactado en contrato"
+      };
+    }) : [];
+    otrosDescuentosTotal = Math.round(otrosDescuentosTotal * 100) / 100;
+
+    // 5. Líquido a recibir = Honorarios - Retención ISR - Cotizaciones - Otros Descuentos
+    const totalDeducciones = Math.round((retencionISR + isssVoluntario + afpVoluntaria + otrosDescuentosTotal) * 100) / 100;
+    const salarioLiquido = Math.round((honorariosBrutos - totalDeducciones) * 100) / 100;
+
+    return {
+      modo: "servicios",
+      honorariosBrutos: honorariosBrutos,
+      salarioBruto: honorariosBrutos,
+      salarioMinimoSector: salarioMinimoSector,
+      retencionISR: retencionISR,
+      iva: iva,
+      inscritoIVA: !!t.inscritoIVA,
+      totalFacturadoConIVA: totalFacturadoConIVA,
+      isssTrabajador: isssVoluntario,
+      afpTrabajador: afpVoluntaria,
+      isssPatronal: 0,
+      afpPatronal: 0,
+      insaforpPatronal: 0,
+      provisionAguinaldo: 0,
+      provisionVacacion: 0,
+      provisionIndemnizacion: 0,
+      costoTotalEmpleador: t.inscritoIVA ? totalFacturadoConIVA : honorariosBrutos,
+      otrosDescuentos: listaOtrosDescuentos,
+      otrosDescuentosTotal: otrosDescuentosTotal,
+      totalDeducciones: totalDeducciones,
+      salarioLiquido: salarioLiquido
+    };
+  }
+
+  // -------------------------------------------------------------
+  // CÁLCULO MODO RÉGIMEN LABORAL (CÓDIGO DE TRABAJO)
+  // -------------------------------------------------------------
+  const bruto = Math.max(0, Number(t.salarioBruto) || 0);
+
+  // 1. ISSS Trabajador (3% con techo legal)
+  const baseCotizableISSS = Math.min(bruto, PARAMS.isss.techoCotizable);
+  const isssTrabajador = Math.round(baseCotizableISSS * PARAMS.isss.porcentajeTrabajador * 100) / 100;
+  const isssPatronal = Math.round(baseCotizableISSS * PARAMS.aportesPatronales.isss * 100) / 100;
+
+  // 2. AFP Trabajador (7.25% con techo legal)
+  const baseCotizableAFP = Math.min(bruto, PARAMS.afp.techoCotizable);
+  const afpTrabajador = Math.round(baseCotizableAFP * PARAMS.afp.porcentajeTrabajador * 100) / 100;
+  const afpPatronal = Math.round(baseCotizableAFP * PARAMS.aportesPatronales.afp * 100) / 100;
+
+  // 3. INSAFORP Patronal (1%)
+  const insaforpPatronal = Math.round(bruto * PARAMS.aportesPatronales.insaforp * 100) / 100;
+
+  // 4. Base imponible ISR (Renta) = Salario Bruto - ISSS - AFP
+  const baseImponibleISR = Math.max(0, Math.round((bruto - isssTrabajador - afpTrabajador) * 100) / 100);
+
+  // 5. ISR según tabla mensual de retención vigente
+  let isr = 0;
+  let tramoAplicado = null;
+  for (const tramo of PARAMS.isr_tramos_mensual) {
+    if (baseImponibleISR >= tramo.desde && baseImponibleISR <= tramo.hasta) {
+      tramoAplicado = tramo;
+      const exceso = Math.max(0, baseImponibleISR - tramo.sobreExcesoDe);
+      isr = Math.round((tramo.cuotaFija + (exceso * tramo.porcentaje)) * 100) / 100;
+      break;
+    }
+  }
+
+  // 6. Subtotal después de deducciones legales obligatorias
+  const subtotalLegal = Math.round((bruto - isssTrabajador - afpTrabajador - isr) * 100) / 100;
+
+  // 7. Pensión Alimenticia (preferente)
+  const montoPension = t.tienePension ? Math.max(0, Number(t.montoPension) || 0) : 0;
+
+  // 8. Embargo por deuda ordinaria
+  const montoEmbargo = t.tieneEmbargo ? Math.max(0, Number(t.montoEmbargo) || 0) : 0;
+
+  // 9. Otros descuentos extraordinarios
+  let otrosDescuentosTotal = 0;
+  let totalDescuentoBancario = 0;
+  const listaOtrosDescuentos = Array.isArray(t.otrosDescuentos) ? t.otrosDescuentos.map(d => {
+    const val = Math.max(0, Number(d.monto) || 0);
+    otrosDescuentosTotal += val;
+    if (d.fundamento === "Préstamo bancario / mutuo (Art. 136 C.T. - máx 20%)" || (d.descripcion && d.descripcion.toLowerCase().includes("banco"))) {
+      totalDescuentoBancario += val;
+    }
+    return {
+      descripcion: d.descripcion || "Descuento sin descripción",
+      monto: val,
+      fundamento: d.fundamento || "SIN FUNDAMENTO DECLARADO"
+    };
+  }) : [];
+  otrosDescuentosTotal = Math.round(otrosDescuentosTotal * 100) / 100;
+
+  // 10. SALARIO LÍQUIDO FINAL
+  const totalDeducciones = Math.round((isssTrabajador + afpTrabajador + isr + montoPension + montoEmbargo + otrosDescuentosTotal) * 100) / 100;
+  const salarioLiquido = Math.round((bruto - totalDeducciones) * 100) / 100;
+
+  // Excedente y capacidad embargable ordinaria
+  const salarioLiquidoAntesDeEmbargo = Math.round((subtotalLegal - montoPension) * 100) / 100;
+  const excedenteSobreMinimo = Math.round((salarioLiquidoAntesDeEmbargo - salarioMinimoSector) * 100) / 100;
+  const maximoEmbargableOrdinario = excedenteSobreMinimo > 0
+    ? Math.round(excedenteSobreMinimo * PARAMS.limites.topeEmbargoDeudaOrdinaria * 100) / 100
+    : 0.00;
+
+  // Límite bancario legal del 20% (Art. 136 C.T.)
+  const topeLegalBancarioArt136 = Math.round(bruto * PARAMS.limites.topeDescuentoBancarioArt136 * 100) / 100;
+
+  // ================= PARTE 3 — PROVISIONES DE PRESTACIONES LABORALES =================
+  const antiguedad = Number(t.antiguedadAnios) || 1;
+  let diasAguinaldo = 15;
+  for (const tramo of PARAMS.prestaciones.diasAguinaldoPorAntiguedad) {
+    if (antiguedad >= tramo.desdeAnios && antiguedad < tramo.hastaAnios) {
+      diasAguinaldo = tramo.dias;
+      break;
+    }
+  }
+
+  // Provisión mensual de aguinaldo: (díasAguinaldo / 30) * bruto / 12
+  const provisionAguinaldo = Math.round(((diasAguinaldo / 30) * bruto / 12) * 100) / 100;
+
+  // Provisión mensual de vacación: (15 días + 30% recargo) / 12
+  const provisionVacacion = Math.round(((PARAMS.prestaciones.diasVacacion / 30 * bruto * (1 + PARAMS.prestaciones.recargoVacacion)) / 12) * 100) / 100;
+
+  // Provisión mensual de indemnización: 30 días de salario por año / 12 = bruto / 12
+  const provisionIndemnizacion = Math.round(((PARAMS.prestaciones.diasIndemnizacionPorAnio / 30 * bruto) / 12) * 100) / 100;
+
+  // Costo Total Mensual del Empleador = bruto + todo lo anterior
+  const costoTotalEmpleador = Math.round((bruto + isssPatronal + afpPatronal + insaforpPatronal + provisionAguinaldo + provisionVacacion + provisionIndemnizacion) * 100) / 100;
+
+  return {
+    modo: "laboral",
+    salarioBruto: bruto,
+    salarioMinimoSector: salarioMinimoSector,
+    baseCotizableISSS: baseCotizableISSS,
+    isssTrabajador: isssTrabajador,
+    isssPatronal: isssPatronal,
+    baseCotizableAFP: baseCotizableAFP,
+    afpTrabajador: afpTrabajador,
+    afpPatronal: afpPatronal,
+    insaforpPatronal: insaforpPatronal,
+    diasAguinaldo: diasAguinaldo,
+    provisionAguinaldo: provisionAguinaldo,
+    provisionVacacion: provisionVacacion,
+    provisionIndemnizacion: provisionIndemnizacion,
+    costoTotalEmpleador: costoTotalEmpleador,
+    baseImponibleISR: baseImponibleISR,
+    tramoAplicadoISR: tramoAplicado,
+    isr: isr,
+    subtotalLegal: subtotalLegal,
+    montoPension: montoPension,
+    montoEmbargo: montoEmbargo,
+    salarioLiquidoAntesDeEmbargo: salarioLiquidoAntesDeEmbargo,
+    excedenteSobreMinimo: excedenteSobreMinimo,
+    maximoEmbargableOrdinario: maximoEmbargableOrdinario,
+    totalDescuentoBancario: totalDescuentoBancario,
+    topeLegalBancarioArt136: topeLegalBancarioArt136,
+    otrosDescuentos: listaOtrosDescuentos,
+    otrosDescuentosTotal: otrosDescuentosTotal,
+    totalDeducciones: totalDeducciones,
+    salarioLiquido: salarioLiquido
+  };
+}
+</script>
+
+<!-- ==========================================================================
+     BLOQUE C: MOTOR DE ALERTAS JURÍDICAS (LABORAL Y SERVICIOS)
+     ========================================================================== -->
+<script>
+/**
+ * Formatea una tupla de etiqueta y valor con puntos alineados en estilo monoespaciado.
+ */
+function formatTrace(pairs) {
+  return pairs.map(([label, val]) => {
+    const sLabel = String(label);
+    const sVal = String(val);
+    const dotsCount = Math.max(2, 44 - sLabel.length - sVal.length);
+    return `${sLabel} ${".".repeat(dotsCount)} ${sVal}`;
+  }).join("\n");
+}
+
+function formatMoneda(val) {
+  const num = Number(val) || 0;
+  return "$" + num.toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+}
+
+/**
+ * Evalúa contingencias jurídicas laborales y contractuales.
+ * Función pura: NO interactúa con el DOM.
+ * 
+ * @param {Object} t - Datos del trabajador/prestador
+ * @param {Object} calc - Resultado de calcularPlanilla(t)
+ * @returns {Array<Object>} Lista de alertas: { severidad, codigo, titulo, mensaje, fundamento, trazabilidad }
+ */
+function evaluarAlertas(t, calc) {
+  const alertas = [];
+  const modo = t.modo || "laboral";
+
+  if (modo === "servicios") {
+    // ALERTAS PROPIAS DEL MODO PRESTACIÓN DE SERVICIOS
+    const indicadores = Array.isArray(t.indicadoresSubordinacion) ? t.indicadoresSubordinacion : [];
+    const countIndicadores = indicadores.length;
+
+    // 1. ROJA — "POSIBLE SIMULACIÓN DE RELACIÓN LABORAL" (3 o más indicadores)
+    if (countIndicadores >= PARAMS.servicios.umbralSubordinacionSimulacion) {
+      const listaInd = indicadores.map((ind, i) => `(${i+1}) ${ind}`).join("; ");
+      const trace = formatTrace([
+        ["Total indicadores evaluados", "6"],
+        ["Indicadores de subordinación", `${countIndicadores} de 6`],
+        ["Umbral legal de simulación", "3 o más indicadores"],
+        ["Principio tutelar aplicable", "Primacía de la Realidad"],
+        ["Consecuencia laboral", "Presunción de Contrato de Trabajo"]
+      ]) + "\nIndicadores de hecho detectados:\n" + indicadores.map((ind, i) => `  * (${i+1}) ${ind}`).join("\n");
+
+      alertas.push({
+        severidad: "ROJA",
+        codigo: "SIMULACION_RELACION_LABORAL",
+        titulo: "POSIBLE SIMULACIÓN DE RELACIÓN LABORAL (FRAUDE DE LEY)",
+        mensaje: `Se han configurado ${countIndicadores} de los 6 indicadores de subordinación laboral: [${listaInd}]. Conforme al principio tuitivo de Primacía de la Realidad y la presunción legal del contrato de trabajo, esta relación reúne las notas tipificantes de un contrato individual de trabajo subordinado encubierto. El contratante se expone al reclamo judicial de prestaciones sociales retroactivas (aguinaldo, vacaciones anuales remuneradas, indemnización por despido y aportes patronales omitidos).`,
+        fundamento: "Código de Trabajo — Presunción de la relación laboral y primacía de la realidad sobre las formas contractuales [verificar artículo]",
+        trazabilidad: trace
+      });
+    }
+
+    // 2. ROJA — "DESCUENTO DE COTIZACIONES SIN RELACIÓN LABORAL"
+    if (t.descuentaCotizacionesSinVoluntaria && !t.afiliacionVoluntaria) {
+      const trace = formatTrace([
+        ["Régimen contratado", "Prestación de Servicios (Civil)"],
+        ["Cotización ISSS retenida", formatMoneda(calc.isssTrabajador)],
+        ["Cotización AFP retenida", formatMoneda(calc.afpTrabajador)],
+        ["Total retenciones indebidas", formatMoneda(calc.isssTrabajador + calc.afpTrabajador)],
+        ["Afiliación voluntaria suscrita", "NO"],
+        ["Calificación jurídica", "Retención ilícita de honorarios"]
+      ]);
+
+      alertas.push({
+        severidad: "ROJA",
+        codigo: "COTIZACIONES_INDEBIDAS_SERVICIOS",
+        titulo: "DESCUENTO DE COTIZACIONES SIN RELACIÓN LABORAL",
+        mensaje: "El contratante está practicando retenciones de seguridad social (ISSS / AFP) al prestador de servicios sin que exista una afiliación voluntaria legalmente formalizada. En los contratos civiles o mercantiles de servicios profesionales no procede la deducción patronal de cuotas obreras de planilla; ello evidencia subordinación de hecho y constituye retención ilícita de honorarios.",
+        fundamento: "Ley del Seguro Social y Ley del Sistema de Ahorro para Pensiones — Improcedencia de retenciones obligatorias en contratos civiles independientes [verificar artículo]",
+        trazabilidad: trace
+      });
+    }
+
+    // 3. AMARILLA — "CONTRATACIÓN PERMANENTE ENCUBIERTA"
+    const duracion = Number(t.duracionMeses) || 0;
+    const renovaciones = t.renovadoSucesivamente ? (Number(t.numRenovaciones) || 0) : 0;
+    if (duracion > PARAMS.servicios.umbralDuracionMesesEncubierta || renovaciones >= PARAMS.servicios.umbralRenovacionesEncubierta) {
+      const trace = formatTrace([
+        ["Duración contractual", `${duracion} meses (Límite: 12 meses)`],
+        ["Renovaciones consecutivas", `${renovaciones} prórrogas (Límite: 3)`],
+        ["Naturaleza del servicio", "Servicio accidental o eventual"],
+        ["Calificación real", "Necesidad permanente de la empresa"],
+        ["Efecto legal (Art. 25 C.T.)", "Contrato por tiempo indefinido"]
+      ]);
+
+      alertas.push({
+        severidad: "AMARILLA",
+        codigo: "CONTRATACION_PERMANENTE_ENCUBIERTA",
+        titulo: "CONTRATACIÓN PERMANENTE ENCUBIERTA",
+        mensaje: `El contrato reporta una vigencia de ${duracion} meses y/o ${renovaciones} renovaciones sucesivas. La prolongación continuada en el tiempo desvirtúa la naturaleza eventual o accidental de los servicios profesionales independientes, revelando la atención a una necesidad permanente del negocio que debe ser cubierta mediante plaza laboral por tiempo indefinido.`,
+        fundamento: "Código de Trabajo — Desnaturalización de contratos a plazo fijo y garantía de estabilidad en labores permanentes [verificar artículo]",
+        trazabilidad: trace
+      });
+    }
+
+    // 4. AMARILLA — "HONORARIOS BAJO EL MÍNIMO CON DEDICACIÓN COMPLETA"
+    const tieneHorarioFijo = indicadores.some(ind => ind.toLowerCase().includes("horario fijo"));
+    const tieneExclusividad = indicadores.some(ind => ind.toLowerCase().includes("exclusividad"));
+    if (calc.honorariosBrutos > 0 && calc.honorariosBrutos < calc.salarioMinimoSector && tieneHorarioFijo && tieneExclusividad) {
+      const faltante = calc.salarioMinimoSector - calc.honorariosBrutos;
+      const trace = formatTrace([
+        ["Sector económico de referencia", PARAMS.sectoresLabels[t.sector] || t.sector],
+        ["Salario mínimo legal del sector", formatMoneda(calc.salarioMinimoSector)],
+        ["Honorarios brutos pactados", formatMoneda(calc.honorariosBrutos)],
+        ["DÉFICIT BAJO EL MÍNIMO", formatMoneda(faltante)],
+        ["Exigencias impuestas", "Horario Fijo y Exclusividad"],
+        ["Calificación constitucional", "Vulneración al mínimo vital de subsistencia"]
+      ]);
+
+      alertas.push({
+        severidad: "AMARILLA",
+        codigo: "HONORARIOS_BAJO_MINIMO_DEDICACION_COMPLETA",
+        titulo: "HONORARIOS BAJO EL MÍNIMO LEGAL CON DEDICACIÓN COMPLETA",
+        mensaje: `Los honorarios brutos ($${calc.honorariosBrutos.toFixed(2)}) son inferiores al salario mínimo legal vigente del sector ($${calc.salarioMinimoSector.toFixed(2)}) a pesar de que se exige horario fijo y exclusividad. Exigir jornada completa cautiva remunerando por debajo del umbral mínimo vital lesiona el principio de subsistencia digna de la persona trabajadora.`,
+        fundamento: "Constitución de la República y Código de Trabajo — Remuneración vital mínima y equidad en la retribución [verificar artículo]",
+        trazabilidad: trace
+      });
+    }
+
+    // 5. AZUL — "SIN COBERTURA DE SEGURIDAD SOCIAL"
+    if (!t.afiliacionVoluntaria) {
+      const trace = formatTrace([
+        ["Cobertura médica patronal (ISSS)", "NO AFILIADO (Atención privada)"],
+        ["Aportes previsionales (AFP)", "NO ACUMULA semanas para pensión"],
+        ["Aporte patronal de vejez (8.75%)", "$0.00 (Renunciado)"],
+        ["Riesgo ante accidente/invalidez", "100% asumido por el prestador"],
+        ["Alternativa disponible", "Afiliación facultativa independiente"]
+      ]);
+
+      alertas.push({
+        severidad: "AZUL",
+        codigo: "SIN_COBERTURA_SEGURIDAD_SOCIAL",
+        titulo: "SIN COBERTURA DE SEGURIDAD SOCIAL PREVISIONAL Y DE SALUD",
+        mensaje: "El prestador de servicios profesionales no cuenta con afiliación voluntaria registrada en este contrato. Por consiguiente, no genera cotizaciones para salud médica (ISSS) ni para ahorro pensional de vejez, invalidez o muerte (AFP). Toda cobertura ante accidentes o enfermedades corre por su propia cuenta.",
+        fundamento: "Ley del Seguro Social y Ley SAP — Régimen especial facultativo para profesionales independientes [verificar artículo]",
+        trazabilidad: trace
+      });
+    }
+
+    // 6. AMARILLA — "RETENCIÓN NO ENTERADA AL FISCO"
+    if (t.retencionNoEnterada) {
+      const trace = formatTrace([
+        ["Honorarios brutos devengados", formatMoneda(calc.honorariosBrutos)],
+        ["Tasa de retención ISR (Art. 156)", "10.00%"],
+        ["Monto de renta retenido", formatMoneda(calc.retencionISR)],
+        ["Estado ante la DGII (Hacienda)", "RETENIDO PERO NO ENTERADO"],
+        ["Responsabilidad tributaria", "Agente de Retención (Sanción y mora)"]
+      ]);
+
+      alertas.push({
+        severidad: "AMARILLA",
+        codigo: "RETENCION_RENTA_NO_ENTERADA",
+        titulo: "RETENCIÓN DE RENTA EFECTUADA Y NO ENTERADA AL FISCO",
+        mensaje: `Se ha retenido el 10% de Impuesto sobre la Renta ($${calc.retencionISR.toFixed(2)}) sobre los honorarios devengados, pero no ha sido enterada oportunamente a la Dirección General de Impuestos Internos (DGII). El contratante incurre en infracción formal y sustantiva en su carácter de Agente de Retención tributario.`,
+        fundamento: "Código Tributario — Responsabilidad solidaria y sanciones al agente de retención por no enterar tributos retenidos [verificar artículo]",
+        trazabilidad: trace
+      });
+    }
+
+    // 7. VERDE — "SIN OBSERVACIONES"
+    if (alertas.length === 0) {
+      const trace = formatTrace([
+        ["Indicadores de subordinación", `${countIndicadores} de 6 (Bajo el umbral legal)`],
+        ["Honorarios brutos devengados", formatMoneda(calc.honorariosBrutos)],
+        ["Retención 10% ISR aplicada", formatMoneda(calc.retencionISR)],
+        ["Calificación jurídica", "Prestación autónoma e independiente"]
+      ]);
+
+      alertas.push({
+        severidad: "VERDE",
+        codigo: "SERVICIOS_AUTONOMOS_CONFORME",
+        titulo: "PRESTACIÓN DE SERVICIOS INDEPENDIENTE Y AUTÓNOMA",
+        mensaje: "El contrato analizado exhibe las notas propias de una contratación de servicios autónoma e independiente, sin indicios de subordinación ni retenciones incompatibles con el régimen civil.",
+        fundamento: "Código Civil y Código Tributario — Contratación de servicios profesionales independientes [verificar artículo]",
+        trazabilidad: trace
+      });
+    }
+
+    return alertas;
+  }
+
+  // ALERTAS MODO RÉGIMEN LABORAL (CÓDIGO DE TRABAJO)
+
+  // 1. ROJA — "SALARIO BAJO EL MÍNIMO VIGENTE"
+  if (calc.salarioBruto > 0 && calc.salarioBruto < calc.salarioMinimoSector) {
+    const faltante = Math.round((calc.salarioMinimoSector - calc.salarioBruto) * 100) / 100;
+    const trace = formatTrace([
+      ["Sector económico", PARAMS.sectoresLabels[t.sector] || t.sector],
+      ["Salario mínimo legal obligatorio", formatMoneda(calc.salarioMinimoSector)],
+      ["Salario mensual pactado", formatMoneda(calc.salarioBruto)],
+      ["DÉFICIT / FALTANTE MENSUAL", formatMoneda(faltante)],
+      ["Base normativa vigente", "Decretos Ejecutivos No. 11 y 12"],
+      ["Sanción aplicable", "Nulidad de cláusula y multa de inspección"]
+    ]);
+
+    alertas.push({
+      severidad: "ROJA",
+      codigo: "SALARIO_BAJO_MINIMO",
+      titulo: "SALARIO BAJO EL MÍNIMO LEGAL VIGENTE",
+      mensaje: `El salario mensual pactado ($${calc.salarioBruto.toFixed(2)}) es inferior al salario mínimo legal obligatorio vigente para el sector (${t.sector}) que corresponde a $${calc.salarioMinimoSector.toFixed(2)} (según Decretos Ejecutivos No. 11 y 12). Existe un faltante de $${faltante.toFixed(2)}. Ningún acuerdo individual o contrato puede pactar una remuneración menor a la legalmente decretada.`,
+      fundamento: "Código de Trabajo — Salario mínimo legal irrenunciable y Decretos Ejecutivos de tarifas vigentes [verificar artículo]",
+      trazabilidad: trace
+    });
+  }
+
+  // 2. ROJA — "DESCUENTO SIN FUNDAMENTO LEGAL"
+  const descuentosSinFundamento = (calc.otrosDescuentos || []).filter(d => 
+    d.fundamento === "SIN FUNDAMENTO DECLARADO" && d.monto > 0
+  );
+  if (descuentosSinFundamento.length > 0) {
+    const descripciones = descuentosSinFundamento.map(d => `"${d.descripcion}" ($${d.monto.toFixed(2)})`).join(", ");
+    const totalSinFund = descuentosSinFundamento.reduce((acc, d) => acc + d.monto, 0);
+    const trace = formatTrace([
+      ["Deducciones no autorizadas", descripciones],
+      ["Monto total retenido ilícitamente", formatMoneda(totalSinFund)],
+      ["Fundamento legal acreditado", "SIN FUNDAMENTO DECLARADO"],
+      ["Disposición violada", "Art. 136 Código de Trabajo"],
+      ["Calificación legal", "Retención indebida e infracción patronal"]
+    ]);
+
+    alertas.push({
+      severidad: "ROJA",
+      codigo: "DESCUENTO_SIN_FUNDAMENTO",
+      titulo: "DESCUENTOS SIN FUNDAMENTO LEGAL DECLARADO",
+      mensaje: `Se determinaron retenciones salariales extraordinarias que carecen de respaldo legal expreso o autorización escrita: ${descripciones}. Todo descuento patronal no autorizado por ley expresa o por la voluntad libre del trabajador constituye una infracción patronal grave y retención ilícita de salario.`,
+      fundamento: "Código de Trabajo — Prohibición estricta de deducciones y retenciones patronales no autorizadas [verificar artículo]",
+      trazabilidad: trace
+    });
+  }
+
+  // 3. ROJA — "COTIZACIÓN NO ENTERADA"
+  if (t.cotizacionNoEnterada || t.retencionNoEnterada) {
+    const trace = formatTrace([
+      ["Salario ordinario devengado", formatMoneda(calc.salarioBruto)],
+      ["Retención ISSS Trabajador (3%)", formatMoneda(calc.isssTrabajador)],
+      ["Retención AFP Trabajador (7.25%)", formatMoneda(calc.afpTrabajador)],
+      ["Total cotización retenida", formatMoneda(calc.isssTrabajador + calc.afpTrabajador)],
+      ["Estado en las instituciones", "NO ENTERADA (En poder patronal)"],
+      ["Responsabilidad jurídica", "Apropiación indebida y mora previsional penal"]
+    ]);
+
+    alertas.push({
+      severidad: "ROJA",
+      codigo: "COTIZACION_NO_ENTERADA",
+      titulo: "COTIZACIÓN RETENIDA Y NO ENTERADA A LA INSTITUCIÓN",
+      mensaje: "Se ha practicado la retención de las cotizaciones previsionales y de salud (ISSS/AFP) al trabajador, pero las mismas NO han sido pagadas ni enteradas oportunamente a las instituciones correspondientes. Esta conducta compromete la responsabilidad patrimonial y penal directa del empleador (apropiación indebida de cuotas de seguridad social).",
+      fundamento: "Ley del Seguro Social / Ley del Sistema de Ahorro para Pensiones — Infracción por retención y mora en cuotas previsionales [verificar artículo]",
+      trazabilidad: trace
+    });
+  }
+
+  // 4. ROJA — "EMBARGO SIN ORDEN JUDICIAL"
+  const ordenValida = (t.ordenJudicialEmbargo === "Si" || t.ordenJudicialEmbargo === true);
+  if (t.tieneEmbargo && calc.montoEmbargo > 0 && !ordenValida) {
+    const trace = formatTrace([
+      ["Monto aplicado por embargo", formatMoneda(calc.montoEmbargo)],
+      ["Mandato de juez competente", "NO EXISTE EN AUTOS"],
+      ["Naturaleza de la retención", "Vía de hecho extrajudicial"],
+      ["Principio vulnerado", "Reserva judicial absoluta (CPCM Art. 622)"],
+      ["Efecto procesal", "Nulidad de pleno derecho de la retención"]
+    ]);
+
+    alertas.push({
+      severidad: "ROJA",
+      codigo: "EMBARGO_SIN_ORDEN_JUDICIAL",
+      titulo: "EMBARGO POR DEUDA ORDINARIA SIN MANDATO JUDICIAL",
+      mensaje: `Se ha programado una retención de $${calc.montoEmbargo.toFixed(2)} por concepto de embargo sin contar con una orden judicial formal de tribunal competente. Ni bancos ni acreedores privados pueden ordenar embargos por vías de hecho; rige el principio de inembargabilidad extrajudicial.`,
+      fundamento: "Código de Trabajo y Código Procesal Civil y Mercantil — Reserva de jurisdicción y nulidad de embargos extrajudiciales [verificar artículo]",
+      trazabilidad: trace
+    });
+  }
+
+  // 5. AMARILLA — "EXCESO DE EMBARGO O INEMBARGABILIDAD DEL MÍNIMO"
+  if (t.tieneEmbargo && calc.montoEmbargo > 0) {
+    if (calc.excedenteSobreMinimo <= 0) {
+      const trace = formatTrace([
+        ["Salario mínimo del sector", formatMoneda(calc.salarioMinimoSector)],
+        ["Líquido antes de embargo", formatMoneda(calc.salarioLiquidoAntesDeEmbargo)],
+        ["Excedente embargable", "$0.00 (Inembargable)"],
+        ["Máximo legal embargable (20%)", "$0.00"],
+        ["Embargo solicitado", formatMoneda(calc.montoEmbargo)],
+        ["EXCESO ILEGAL APLICADO", formatMoneda(calc.montoEmbargo)]
+      ]);
+
+      alertas.push({
+        severidad: "AMARILLA",
+        codigo: "EXCESO_EMBARGO_ORDINARIO_INEMBARGABLE",
+        titulo: "INEMBARGABILIDAD POR FALTA DE EXCEDENTE SOBRE EL MÍNIMO",
+        mensaje: `El salario disponible antes de embargo ($${calc.salarioLiquidoAntesDeEmbargo.toFixed(2)}) no supera el salario mínimo legal vigente ($${calc.salarioMinimoSector.toFixed(2)}). El salario mínimo tiene protección de inembargabilidad absoluta frente a deudas civiles o bancarias comunes (Art. 622 CPCM y Código de Trabajo).`,
+        fundamento: "Código Procesal Civil y Mercantil Art. 622 y Código de Trabajo — Inembargabilidad del salario base frente a deudas ordinarias [verificar artículo]",
+        trazabilidad: trace
+      });
+    } else if (calc.montoEmbargo > calc.maximoEmbargableOrdinario) {
+      const exceso = calc.montoEmbargo - calc.maximoEmbargableOrdinario;
+      const trace = formatTrace([
+        ["Salario mínimo del sector", formatMoneda(calc.salarioMinimoSector)],
+        ["Líquido antes de embargo", formatMoneda(calc.salarioLiquidoAntesDeEmbargo)],
+        ["Excedente sobre el mínimo", formatMoneda(calc.excedenteSobreMinimo)],
+        ["Máximo legal permitido (20%)", formatMoneda(calc.maximoEmbargableOrdinario)],
+        ["Embargo solicitado", formatMoneda(calc.montoEmbargo)],
+        ["EXCESO ILEGAL RETENIDO", formatMoneda(exceso)]
+      ]);
+
+      alertas.push({
+        severidad: "AMARILLA",
+        codigo: "EXCESO_EMBARGO_ORDINARIO_TOPE",
+        titulo: "EXCESO DEL TOPE LEGAL EN EMBARGO POR DEUDA ORDINARIA",
+        mensaje: `El monto aplicado para embargo ($${calc.montoEmbargo.toFixed(2)}) excede el límite legal del 20% aplicable sobre el excedente del salario mínimo. Con un excedente de $${calc.excedenteSobreMinimo.toFixed(2)}, el tope máximo embargable por ley es de $${calc.maximoEmbargableOrdinario.toFixed(2)}.`,
+        fundamento: "Código de Trabajo y Código Procesal Civil y Mercantil — Límite del 20% sobre el excedente del salario protegido [verificar artículo]",
+        trazabilidad: trace
+      });
+    }
+  }
+
+  // 6. AMARILLA — "EXCESO DEL TOPE BANCARIO EN DESCUENTO POR MUTUO (ART. 136 C.T.)"
+  if (calc.totalDescuentoBancario > calc.topeLegalBancarioArt136) {
+    const excesoBancario = calc.totalDescuentoBancario - calc.topeLegalBancarioArt136;
+    const trace = formatTrace([
+      ["Salario ordinario pactado", formatMoneda(calc.salarioBruto)],
+      ["Tope legal bancario Art. 136 (20%)", formatMoneda(calc.topeLegalBancarioArt136)],
+      ["Descuentos bancarios aplicados", formatMoneda(calc.totalDescuentoBancario)],
+      ["EXCESO ILEGAL RETENIDO", formatMoneda(excesoBancario)],
+      ["Naturaleza del tope", "Límite legal improrrogable e irrenunciable"]
+    ]);
+
+    alertas.push({
+      severidad: "AMARILLA",
+      codigo: "EXCESO_DESCUENTO_BANCARIO_MUTUO",
+      titulo: "EXCESO DEL TOPE BANCARIO DEL 20% (ART. 136 CÓDIGO DE TRABAJO)",
+      mensaje: `Los descuentos para pagos de préstamos bancarios o cooperativas suman $${calc.totalDescuentoBancario.toFixed(2)}, superando el tope legal improrrogable del 20% del salario ordinario ($${calc.topeLegalBancarioArt136.toFixed(2)}). El Art. 136 literal b) del Código de Trabajo prohíbe retener al trabajador más del 20% para amortización de préstamos bancarios o de mutuo aunque medie autorización escrita.`,
+      fundamento: "Código de Trabajo Art. 136 lit. b) — Límite máximo del 20% para retenciones bancarias y de mutuo [verificar artículo]",
+      trazabilidad: trace
+    });
+  }
+
+  // 7. AZUL — "ORDEN DE RETENCIÓN POR ALIMENTOS VIGENTE"
+  if (t.tienePension && calc.montoPension > 0) {
+    const autoridad = t.autoridadPension || "Autoridad competente";
+    const trace = formatTrace([
+      ["Cuota alimenticia ordenada", formatMoneda(calc.montoPension)],
+      ["Autoridad judicial/administrativa", autoridad],
+      ["Rango crediticio", "Crédito Superpreferente de Familia"],
+      ["Prelación legal", "Prioridad sobre embargos civiles y mutuos bancarios"]
+    ]);
+
+    alertas.push({
+      severidad: "AZUL",
+      codigo: "RETENCION_ALIMENTOS_PREFERENTE",
+      titulo: "ORDEN DE RETENCIÓN POR ALIMENTOS VIGENTE",
+      mensaje: `Se aplica retención por pensión alimenticia de $${calc.montoPension.toFixed(2)} ordenada por ${autoridad}. Se hace constar que los créditos alimentarios gozan de prelación y carácter superpreferente frente a deudas bancarias o embargos ordinarios.`,
+      fundamento: "Código de Familia — Carácter preferente y privilegio del crédito alimenticio [verificar artículo]",
+      trazabilidad: trace
+    });
+  }
+
+  // 8. AMARILLA — "PENSIÓN ALIMENTICIA ELEVADA"
+  if (t.tienePension && calc.montoPension > 0 && calc.subtotalLegal > 0) {
+    const ratioPension = calc.montoPension / calc.subtotalLegal;
+    if (ratioPension > PARAMS.limites.alertaPensionAlimenticiaAlta) {
+      const porcentaje = Math.round(ratioPension * 100);
+      const trace = formatTrace([
+        ["Subtotal líquido legal previo", formatMoneda(calc.subtotalLegal)],
+        ["Cuota alimenticia retenida", formatMoneda(calc.montoPension)],
+        ["Porcentaje del líquido absorbido", `${porcentaje}%`],
+        ["Umbral de alerta preventiva", "> 30.0%"],
+        ["Criterio legal", "Principio de proporcionalidad alimentaria"]
+      ]);
+
+      alertas.push({
+        severidad: "AMARILLA",
+        codigo: "PENSION_ALIMENTICIA_ELEVADA",
+        titulo: "CUOTA DE PENSIÓN ALIMENTICIA ELEVADA",
+        mensaje: `La cuota alimenticia retenida ($${calc.montoPension.toFixed(2)}) absorbe el ${porcentaje}% del salario líquido previo a descuentos. Aunque los alimentos son preferentes, se sugiere cotejar el auto o sentencia judicial para validar los términos del porcentaje fijado y salvaguardar la congrua subsistencia del obligado.`,
+        fundamento: "Código de Familia — Principio de proporcionalidad en la cuota alimenticia [verificar artículo]",
+        trazabilidad: trace
+      });
+    }
+  }
+
+  // 9. AMARILLA — "LÍQUIDO DESPROPORCIONADO"
+  if (calc.salarioBruto > 0 && calc.salarioLiquido < (calc.salarioBruto * 0.50)) {
+    const pctReal = Math.round((calc.salarioLiquido / calc.salarioBruto) * 100);
+    const trace = formatTrace([
+      ["Salario bruto acordado", formatMoneda(calc.salarioBruto)],
+      ["Umbral protector de subsistencia(50%)", formatMoneda(calc.salarioBruto * 0.50)],
+      ["Total deducciones acumuladas", formatMoneda(calc.totalDeducciones)],
+      ["Salario líquido final", `${formatMoneda(calc.salarioLiquido)} (${pctReal}% del bruto)`],
+      ["Principio tutelado", "Naturaleza alimentaria del salario"]
+    ]);
+
+    alertas.push({
+      severidad: "AMARILLA",
+      codigo: "LIQUIDO_DESPROPORCIONADO",
+      titulo: "SALARIO LÍQUIDO DESPROPORCIONADO O INSUFICIENTE",
+      mensaje: `El salario líquido final ($${calc.salarioLiquido.toFixed(2)}) representa apenas el ${pctReal}% del salario bruto. Las deducciones acumuladas consumen más del 50% de la remuneración acordada, comprometiendo la naturaleza protectora y alimentaria del salario del trabajador.`,
+      fundamento: "Código de Trabajo — Protección sustantiva del salario como medio de subsistencia [verificar artículo]",
+      trazabilidad: trace
+    });
+  }
+
+  // 10. VERDE — "SIN OBSERVACIONES"
+  if (alertas.length === 0) {
+    const trace = formatTrace([
+      ["Salario devengado", `${formatMoneda(calc.salarioBruto)} >= Mínimo legal`],
+      ["Deducciones obligatorias", `ISSS ${formatMoneda(calc.isssTrabajador)} · AFP ${formatMoneda(calc.afpTrabajador)} · ISR ${formatMoneda(calc.isr)}`],
+      ["Salario líquido", formatMoneda(calc.salarioLiquido)],
+      ["Estado legal", "100% conforme al ordenamiento salvadoreño"]
+    ]);
+
+    alertas.push({
+      severidad: "VERDE",
+      codigo: "CONFORME_A_DERECHO",
+      titulo: "PLANILLA CONFORME A DERECHO LABORAL",
+      mensaje: "No se identificaron infracciones, excesos de gravamen ni irregularidades jurídicas en los cálculos ni en los descuentos aplicados al trabajador.",
+      fundamento: "Código de Trabajo, Ley del Seguro Social y Ley SAP — Cumplimiento legal de planilla [verificar artículo]",
+      trazabilidad: trace
+    });
+  }
+
+  return alertas;
+}
+</script>
+
+<!-- ==========================================================================
+     BLOQUE DE INTERFAZ DE USUARIO (UI, EVENTOS Y RENDERIZADO)
+     ========================================================================== -->
+<script>
+let currentMode = "laboral";
+
+function formatUSD(val) {
+  const num = Number(val) || 0;
+  return "$" + num.toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  // DOM Elements
+  const tabLaboral = document.getElementById("tab-laboral");
+  const tabServicios = document.getElementById("tab-servicios");
+  const fieldsLaboral = document.getElementById("fields-laboral");
+  const fieldsServicios = document.getElementById("fields-servicios");
+  const formTitle = document.getElementById("form-title");
+  const boletaTituloText = document.getElementById("boleta-titulo-text");
+  const heroTagTitle = document.getElementById("hero-tag-title");
+  const reglaDeOro = document.getElementById("regla-de-oro");
+  const ivaCallout = document.getElementById("iva-callout");
+  const panelCostoEmpleador = document.getElementById("panel-costo-empleador");
+  const btnToggleCostoPatrono = document.getElementById("btn-toggle-costo-patrono");
+  const patronalContentBody = document.getElementById("patronal-content-body");
+  const iconExpandPatronal = document.getElementById("icon-expand-patronal");
+
+  const selectSector = document.getElementById("sectorEconomico");
+  const selectSectorServicios = document.getElementById("sectorReferenciaServicios");
+  const checkPension = document.getElementById("tienePension");
+  const panelPension = document.getElementById("panel-pension");
+  const checkEmbargo = document.getElementById("tieneEmbargo");
+  const panelEmbargo = document.getElementById("panel-embargo");
+  const checkRenovado = document.getElementById("renovadoSucesivamente");
+  const panelRenovaciones = document.getElementById("panel-renovaciones");
+  const checkInscritoIVA = document.getElementById("inscritoIVA");
+  const checkAfiliacionVoluntaria = document.getElementById("afiliacionVoluntaria");
+  const checkDescuentaSinVoluntaria = document.getElementById("descuentaCotizacionesSinVoluntaria");
+  const checkRetencionNoEnterada = document.getElementById("retencionNoEnterada");
+  const labelRetencionNoEnterada = document.getElementById("label-retencion-no-enterada");
+  const descRetencionNoEnterada = document.getElementById("desc-retencion-no-enterada");
+  const labelOtrosDescuentos = document.getElementById("label-otros-descuentos");
+  const badgeSubordinacionCount = document.getElementById("badge-subordinacion-count");
+  const checksSubordinacion = document.querySelectorAll(".check-subordinacion");
+
+  const form = document.getElementById("payroll-form");
+  const btnAddDescuento = document.getElementById("btn-add-descuento");
+  const descuentosContainer = document.getElementById("otros-descuentos-container");
+  const btnEjemplo = document.getElementById("btn-ejemplo");
+  const btnImprimir = document.getElementById("btn-imprimir");
+  const btnLimpiar = document.getElementById("btn-limpiar");
+  const btnCSV = document.getElementById("btn-csv");
+  const btnTheme = document.getElementById("btn-theme");
+  const btnFullscreen = document.getElementById("btn-fullscreen");
+  const themeIcon = document.getElementById("theme-icon");
+  const themeBtnLabel = document.getElementById("theme-btn-label");
+  const vigenciaText = document.getElementById("vigencia-text");
+
+  // Vigencia legal en pie
+  if (vigenciaText) {
+    vigenciaText.textContent = PARAMS.vigencia;
+  }
+
+  // Gestión de Modo Oscuro con localStorage seguro
+  function aplicarTema(tema) {
+    if (tema === "oscuro") {
+      document.documentElement.setAttribute("data-tema", "oscuro");
+      themeIcon.querySelector("use").setAttribute("href", "#ic-light_mode");
+      themeBtnLabel.textContent = "Modo Claro";
+    } else {
+      document.documentElement.removeAttribute("data-tema");
+      themeIcon.querySelector("use").setAttribute("href", "#ic-dark_mode");
+      themeBtnLabel.textContent = "Modo Oscuro";
+    }
+    try {
+      localStorage.setItem("tema_planillera", tema);
+    } catch (e) {
+      // Manejo seguro si el navegador restringe almacenamiento
+    }
+  }
+
+  try {
+    const temaGuardado = localStorage.getItem("tema_planillera");
+    if (temaGuardado === "oscuro") {
+      aplicarTema("oscuro");
+    }
+  } catch (e) {}
+
+  btnTheme.addEventListener("click", () => {
+    const esOscuro = document.documentElement.getAttribute("data-tema") === "oscuro";
+    aplicarTema(esOscuro ? "claro" : "oscuro");
+  });
+
+  // Pantalla Completa
+  btnFullscreen.addEventListener("click", () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    } else {
+      document.exitFullscreen().catch(() => {});
+    }
+  });
+
+  // Toggle Plegable Costo Patronal
+  btnToggleCostoPatrono.addEventListener("click", () => {
+    const isCollapsed = patronalContentBody.classList.toggle("collapsed");
+    iconExpandPatronal.style.transform = isCollapsed ? "rotate(-90deg)" : "rotate(0deg)";
+  });
+
+  // Poblar Sectores desde PARAMS
+  function poblarSectores() {
+    selectSector.innerHTML = "";
+    selectSectorServicios.innerHTML = "";
+    for (const [key, label] of Object.entries(PARAMS.sectoresLabels)) {
+      const opt1 = document.createElement("option");
+      opt1.value = key;
+      opt1.textContent = label;
+      selectSector.appendChild(opt1);
+
+      const opt2 = document.createElement("option");
+      opt2.value = key;
+      opt2.textContent = label;
+      selectSectorServicios.appendChild(opt2);
+    }
+  }
+  poblarSectores();
+
+  // Resetear todo a blanco
+  function dejarTodoEnBlanco() {
+    form.reset();
+    panelPension.classList.remove("active");
+    panelEmbargo.classList.remove("active");
+    panelRenovaciones.classList.remove("active");
+    checksSubordinacion.forEach(chk => chk.checked = false);
+    updateSubordinacionCount();
+    descuentosContainer.innerHTML = "";
+
+    document.getElementById("res-nombre").textContent = "—";
+    document.getElementById("res-cargo").textContent = "—";
+    document.getElementById("res-tipo").textContent = "—";
+    document.getElementById("res-sector").textContent = "—";
+    document.getElementById("res-minimo-sector").textContent = "—";
+    document.getElementById("res-salario-liquido").textContent = "$0.00";
+    document.getElementById("res-salario-liquido").style.color = "#38bdf8";
+    document.getElementById("res-liquido-porcentaje").textContent = "Ingrese los datos y presione Calcular";
+    document.getElementById("payroll-breakdown-body").innerHTML = `
+      <tr>
+        <td colspan="4" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+          El formulario está en blanco. Complete los campos a la izquierda y presione <strong>"Calcular Liquidación y Evaluar Alertas"</strong>, o cargue un caso práctico con <strong>"Cargar caso de ejemplo"</strong>.
+        </td>
+      </tr>
+    `;
+    ivaCallout.style.display = "none";
+    document.getElementById("patronal-table-body").innerHTML = `
+      <tr>
+        <td colspan="3" style="text-align:center; color:var(--text-muted); padding:1rem;">
+          Calcule una planilla para visualizar el desglose detallado de cargas patronales y provisiones.
+        </td>
+      </tr>
+    `;
+    document.getElementById("res-costo-total-empleador").textContent = "$0.00";
+    document.getElementById("alerts-status-text").textContent = "Pendiente de evaluación";
+    document.getElementById("alerts-pills-container").innerHTML = "";
+    document.getElementById("alerts-list-container").innerHTML = `
+      <div style="text-align:center; padding: 1.5rem; color: var(--text-muted); background-color: var(--gris-50); border-radius: 8px;">
+        Esperando ingreso de datos para evaluar el cumplimiento del ordenamiento jurídico salvadoreño.
+      </div>
+    `;
+  }
+
+  // Cambio de Modo (Pestañas)
+  function setModo(modo) {
+    currentMode = modo;
+    if (modo === "laboral") {
+      tabLaboral.classList.add("active");
+      tabServicios.classList.remove("active");
+      fieldsLaboral.style.display = "block";
+      fieldsServicios.style.display = "none";
+      formTitle.innerHTML = `<svg class="ic"><use href="#ic-person"></use></svg> <span>Datos del Trabajador y Remuneración</span>`;
+      boletaTituloText.textContent = "Boleta de Liquidación de Remuneración";
+      heroTagTitle.textContent = "Salario Líquido Final a Percibir";
+      reglaDeOro.style.display = "none";
+      labelRetencionNoEnterada.textContent = "Cotización retenida pero NO enterada a la institución (ISSS / AFP)";
+      descRetencionNoEnterada.textContent = "Marque esta casilla si el patrono retuvo los importes pero no los remitió oportunamente a las instituciones previsional o de salud.";
+      labelOtrosDescuentos.textContent = "Otros descuentos extraordinarios o bancarios";
+      document.getElementById("lbl-res-nombre").textContent = "Trabajador";
+      document.getElementById("lbl-res-cargo").textContent = "Cargo";
+      document.getElementById("lbl-res-tipo").textContent = "Tipo";
+      document.getElementById("lbl-res-sector").textContent = "Sector Económico";
+      panelCostoEmpleador.style.display = "block";
+    } else {
+      tabLaboral.classList.remove("active");
+      tabServicios.classList.add("active");
+      fieldsLaboral.style.display = "none";
+      fieldsServicios.style.display = "block";
+      formTitle.innerHTML = `<svg class="ic"><use href="#ic-handshake"></use></svg> <span>Datos de la Prestación de Servicios</span>`;
+      boletaTituloText.textContent = "Boleta de Honorarios Profesionales";
+      heroTagTitle.textContent = "Líquido Final a Percibir por Honorarios";
+      reglaDeOro.style.display = "block";
+      labelRetencionNoEnterada.textContent = "Retención de ISR practicada pero NO enterada a la DGII (Hacienda)";
+      descRetencionNoEnterada.textContent = "Marque esta casilla si el contratante retuvo el 10% de impuesto sobre la renta pero no lo enteró al fisco salvadoreño.";
+      labelOtrosDescuentos.textContent = "Otros descuentos pactados en el contrato civil";
+      document.getElementById("lbl-res-nombre").textContent = "Prestador";
+      document.getElementById("lbl-res-cargo").textContent = "Servicio";
+      document.getElementById("lbl-res-tipo").textContent = "Modalidad";
+      document.getElementById("lbl-res-sector").textContent = "Sector Ref.";
+      panelCostoEmpleador.style.display = "none";
+    }
+  }
+
+  tabLaboral.addEventListener("click", () => {
+    setModo("laboral");
+    dejarTodoEnBlanco();
+  });
+
+  tabServicios.addEventListener("click", () => {
+    setModo("servicios");
+    dejarTodoEnBlanco();
+  });
+
+  // Contador de indicadores
+  function updateSubordinacionCount() {
+    let count = 0;
+    checksSubordinacion.forEach(chk => {
+      if (chk.checked) count++;
+    });
+    badgeSubordinacionCount.textContent = `${count} seleccionado${count !== 1 ? 's' : ''}`;
+    if (count >= 3) {
+      badgeSubordinacionCount.style.backgroundColor = "var(--rojo)";
+    } else if (count > 0) {
+      badgeSubordinacionCount.style.backgroundColor = "var(--ambar)";
+    } else {
+      badgeSubordinacionCount.style.backgroundColor = "var(--gris-400)";
+    }
+  }
+
+  checksSubordinacion.forEach(chk => {
+    chk.addEventListener("change", () => updateSubordinacionCount());
+  });
+
+  checkPension.addEventListener("change", () => {
+    if (checkPension.checked) {
+      panelPension.classList.add("active");
+    } else {
+      panelPension.classList.remove("active");
+      document.getElementById("montoPension").value = "";
+    }
+  });
+
+  checkEmbargo.addEventListener("change", () => {
+    if (checkEmbargo.checked) {
+      panelEmbargo.classList.add("active");
+    } else {
+      panelEmbargo.classList.remove("active");
+      document.getElementById("montoEmbargo").value = "";
+    }
+  });
+
+  checkRenovado.addEventListener("change", () => {
+    if (checkRenovado.checked) {
+      panelRenovaciones.classList.add("active");
+    } else {
+      panelRenovaciones.classList.remove("active");
+    }
+  });
+
+  // Agregar fila de descuento
+  function agregarFilaDescuento(desc = "", monto = "", fund = "SIN FUNDAMENTO DECLARADO") {
+    const item = document.createElement("div");
+    item.className = "descuento-item";
+
+    const isLaboral = currentMode === "laboral";
+    const defaultFund = isLaboral ? fund : "Pactado en cláusula contractual";
+
+    item.innerHTML = `
+      <div class="descuento-item-header">
+        <span style="font-size:0.82rem; font-weight:700; color:var(--text-main);">Deducción Adicional</span>
+        <button type="button" class="btn-danger-sm btn-delete-descuento" title="Eliminar descuento">
+          <svg class="ic"><use href="#ic-delete"></use></svg> Eliminar
+        </button>
+      </div>
+      <div class="form-row">
+        <div style="flex:1;">
+          <input type="text" class="form-control desc-nombre" placeholder="Concepto (ej. Préstamo bancario, daño, anticipo)" value="${desc}" required>
+        </div>
+        <div style="width:130px;">
+          <input type="number" class="form-control desc-monto tabular" step="0.01" min="0" placeholder="Monto $" value="${monto}" required>
+        </div>
+      </div>
+      <div>
+        <select class="form-control desc-fundamento">
+          <option value="Préstamo bancario / mutuo (Art. 136 C.T. - máx 20%)" ${defaultFund === "Préstamo bancario / mutuo (Art. 136 C.T. - máx 20%)" ? "selected" : ""}>Préstamo bancario / mutuo (Art. 136 C.T. - máx 20%)</option>
+          <option value="Autorización escrita del trabajador" ${defaultFund === "Autorización escrita del trabajador" ? "selected" : ""}>Autorización escrita del trabajador / prestador</option>
+          <option value="Orden judicial" ${defaultFund === "Orden judicial" ? "selected" : ""}>Orden judicial</option>
+          <option value="Ley expresa" ${defaultFund === "Ley expresa" ? "selected" : ""}>Ley expresa</option>
+          <option value="Pactado en cláusula contractual" ${defaultFund === "Pactado en cláusula contractual" ? "selected" : ""}>Pactado en cláusula contractual</option>
+          <option value="SIN FUNDAMENTO DECLARADO" ${defaultFund === "SIN FUNDAMENTO DECLARADO" ? "selected" : ""}>SIN FUNDAMENTO DECLARADO</option>
+        </select>
+      </div>
+    `;
+
+    item.querySelector(".btn-delete-descuento").addEventListener("click", () => item.remove());
+    descuentosContainer.appendChild(item);
+  }
+
+  btnAddDescuento.addEventListener("click", () => agregarFilaDescuento());
+
+  // Recolectar datos
+  function recolectarDatos() {
+    const otrosDesc = [];
+    document.querySelectorAll(".descuento-item").forEach(el => {
+      const nom = el.querySelector(".desc-nombre").value.trim();
+      const val = parseFloat(el.querySelector(".desc-monto").value) || 0;
+      const fnd = el.querySelector(".desc-fundamento").value;
+      if (nom || val > 0) {
+        otrosDesc.push({
+          descripcion: nom || "Descuento",
+          monto: val,
+          fundamento: fnd
+        });
+      }
+    });
+
+    if (currentMode === "servicios") {
+      const indSeleccionados = [];
+      checksSubordinacion.forEach(chk => {
+        if (chk.checked) indSeleccionados.push(chk.value);
+      });
+
+      return {
+        modo: "servicios",
+        nombre: document.getElementById("nombreServicios").value.trim() || "Prestador no especificado",
+        cargo: document.getElementById("servicioContratado").value.trim() || "Servicios profesionales",
+        honorarios: parseFloat(document.getElementById("honorariosBrutos").value) || 0,
+        periodicidad: document.getElementById("periodicidadPago").value,
+        duracionMeses: parseInt(document.getElementById("duracionMeses").value) || 0,
+        sector: document.getElementById("sectorReferenciaServicios").value,
+        renovadoSucesivamente: checkRenovado.checked,
+        numRenovaciones: checkRenovado.checked ? (parseInt(document.getElementById("numRenovaciones").value) || 0) : 0,
+        inscritoIVA: checkInscritoIVA.checked,
+        afiliacionVoluntaria: checkAfiliacionVoluntaria.checked,
+        descuentaCotizacionesSinVoluntaria: checkDescuentaSinVoluntaria.checked,
+        indicadoresSubordinacion: indSeleccionados,
+        retencionNoEnterada: checkRetencionNoEnterada.checked,
+        otrosDescuentos: otrosDesc
+      };
+    }
+
+    return {
+      modo: "laboral",
+      nombre: document.getElementById("nombre").value.trim() || "Trabajador no especificado",
+      cargo: document.getElementById("cargo").value.trim() || "Sin cargo",
+      tipoTrabajador: document.getElementById("tipoTrabajador").value,
+      sector: document.getElementById("sectorEconomico").value,
+      antiguedadAnios: parseInt(document.getElementById("antiguedadAnios").value) || 1,
+      salarioBruto: parseFloat(document.getElementById("salarioBruto").value) || 0,
+      tienePension: checkPension.checked,
+      montoPension: checkPension.checked ? (parseFloat(document.getElementById("montoPension").value) || 0) : 0,
+      autoridadPension: document.getElementById("autoridadPension").value,
+      tieneEmbargo: checkEmbargo.checked,
+      montoEmbargo: checkEmbargo.checked ? (parseFloat(document.getElementById("montoEmbargo").value) || 0) : 0,
+      ordenJudicialEmbargo: document.getElementById("ordenJudicialEmbargo").value,
+      otrosDescuentos: otrosDesc,
+      cotizacionNoEnterada: checkRetencionNoEnterada.checked,
+      retencionNoEnterada: checkRetencionNoEnterada.checked
+    };
+  }
+
+  // Renderizar resultados
+  let ultimoCalculo = null;
+  let ultimoTrabajador = null;
+
+  function procesarYRenderizar() {
+    const t = recolectarDatos();
+    const calc = calcularPlanilla(t);
+    const alertas = evaluarAlertas(t, calc);
+    ultimoCalculo = calc;
+    ultimoTrabajador = t;
+
+    // Resumen de Cabecera
+    document.getElementById("res-nombre").textContent = t.nombre;
+    document.getElementById("res-cargo").textContent = t.cargo;
+    document.getElementById("res-tipo").textContent = t.modo === "servicios" ? `Servicios (${t.periodicidad})` : t.tipoTrabajador;
+    document.getElementById("res-sector").textContent = PARAMS.sectoresLabels[t.sector] || t.sector;
+    document.getElementById("res-minimo-sector").textContent = formatUSD(calc.salarioMinimoSector);
+
+    // Salario Líquido Hero
+    const elLiquido = document.getElementById("res-salario-liquido");
+    elLiquido.textContent = formatUSD(calc.salarioLiquido);
+    elLiquido.style.color = calc.salarioLiquido < 0 ? "var(--rojo)" : "#38bdf8";
+
+    const brutoBase = t.modo === "servicios" ? calc.honorariosBrutos : calc.salarioBruto;
+    const pctBruto = brutoBase > 0 ? ((calc.salarioLiquido / brutoBase) * 100).toFixed(1) : "0.0";
+    document.getElementById("res-liquido-porcentaje").textContent = `${pctBruto}% del ingreso bruto acordado`;
+
+    // Tabla de Desglose
+    const tbody = document.getElementById("payroll-breakdown-body");
+    let rowsHTML = "";
+
+    if (t.modo === "servicios") {
+      rowsHTML += `
+        <tr>
+          <td><svg class="ic"><use href="#ic-attach_money"></use></svg> <strong>Honorarios Profesionales Brutos</strong></td>
+          <td>Honorarios acordados (${t.periodicidad})</td>
+          <td style="text-align:center;"><span class="val-positive">+</span></td>
+          <td style="text-align:right;" class="val-positive tabular">${formatUSD(calc.honorariosBrutos)}</td>
+        </tr>
+        <tr>
+          <td><svg class="ic"><use href="#ic-account_balance"></use></svg> Retención Impuesto sobre la Renta (ISR)</td>
+          <td>10.00% según Art. 156 Código Tributario</td>
+          <td style="text-align:center;"><span class="val-negative">-</span></td>
+          <td style="text-align:right;" class="val-negative tabular">${formatUSD(calc.retencionISR)}</td>
+        </tr>
+      `;
+
+      if (calc.isssTrabajador > 0 || calc.afpTrabajador > 0) {
+        const etiquetaVol = t.afiliacionVoluntaria ? "(Afiliación Voluntaria)" : "<strong style='color:var(--rojo);'>(Descuento sin afiliación voluntaria)</strong>";
+        if (calc.isssTrabajador > 0) {
+          rowsHTML += `
+            <tr>
+              <td><svg class="ic"><use href="#ic-health_and_safety"></use></svg> Cotización ISSS Salud ${etiquetaVol}</td>
+              <td>3.00% sobre base cotizable</td>
+              <td style="text-align:center;"><span class="val-negative">-</span></td>
+              <td style="text-align:right;" class="val-negative tabular">${formatUSD(calc.isssTrabajador)}</td>
+            </tr>
+          `;
+        }
+        if (calc.afpTrabajador > 0) {
+          rowsHTML += `
+            <tr>
+              <td><svg class="ic"><use href="#ic-savings"></use></svg> Cotización Previsional AFP ${etiquetaVol}</td>
+              <td>7.25% sobre base cotizable</td>
+              <td style="text-align:center;"><span class="val-negative">-</span></td>
+              <td style="text-align:right;" class="val-negative tabular">${formatUSD(calc.afpTrabajador)}</td>
+            </tr>
+          `;
+        }
+      }
+
+      if (calc.otrosDescuentos && calc.otrosDescuentos.length > 0) {
+        calc.otrosDescuentos.forEach(d => {
+          rowsHTML += `
+            <tr>
+              <td>Deducción pactada: ${d.descripcion}</td>
+              <td>Fundamento: ${d.fundamento}</td>
+              <td style="text-align:center;"><span class="val-negative">-</span></td>
+              <td style="text-align:right;" class="val-negative tabular">${formatUSD(d.monto)}</td>
+            </tr>
+          `;
+        });
+      }
+
+      rowsHTML += `
+        <tr class="table-total-row">
+          <td colspan="2"><strong>LÍQUIDO FINAL A PERCIBIR POR HONORARIOS</strong></td>
+          <td style="text-align:center;"><strong>=</strong></td>
+          <td style="text-align:right;" class="val-neutral tabular" style="font-size:1.15rem; color:var(--azul-600);">${formatUSD(calc.salarioLiquido)}</td>
+        </tr>
+      `;
+
+      if (calc.inscritoIVA) {
+        ivaCallout.style.display = "flex";
+        document.getElementById("res-iva-monto").textContent = `+ ${formatUSD(calc.iva)}`;
+        document.getElementById("res-total-facturado-iva").textContent = formatUSD(calc.totalFacturadoConIVA);
+      } else {
+        ivaCallout.style.display = "none";
+      }
+
+    } else {
+      // MODO LABORAL
+      ivaCallout.style.display = "none";
+
+      rowsHTML += `
+        <tr>
+          <td><svg class="ic"><use href="#ic-attach_money"></use></svg> <strong>Salario Base Mensual</strong></td>
+          <td>Salario ordinario pactado</td>
+          <td style="text-align:center;"><span class="val-positive">+</span></td>
+          <td style="text-align:right;" class="val-positive tabular">${formatUSD(calc.salarioBruto)}</td>
+        </tr>
+        <tr>
+          <td><svg class="ic"><use href="#ic-health_and_safety"></use></svg> ISSS Salud (Trabajador)</td>
+          <td>3.00% (Base cotizable: ${formatUSD(calc.baseCotizableISSS)})</td>
+          <td style="text-align:center;"><span class="val-negative">-</span></td>
+          <td style="text-align:right;" class="val-negative tabular">${formatUSD(calc.isssTrabajador)}</td>
+        </tr>
+        <tr>
+          <td><svg class="ic"><use href="#ic-savings"></use></svg> AFP Previsión (Trabajador)</td>
+          <td>7.25% (Base cotizable: ${formatUSD(calc.baseCotizableAFP)})</td>
+          <td style="text-align:center;"><span class="val-negative">-</span></td>
+          <td style="text-align:right;" class="val-negative tabular">${formatUSD(calc.afpTrabajador)}</td>
+        </tr>
+      `;
+
+      const tramoTxt = calc.tramoAplicadoISR ? `Tramo $${calc.tramoAplicadoISR.desde.toFixed(2)} - ${calc.tramoAplicadoISR.hasta === Infinity ? 'en adelante' : '$' + calc.tramoAplicadoISR.hasta.toFixed(2)}` : 'Exento';
+      rowsHTML += `
+        <tr>
+          <td><svg class="ic"><use href="#ic-account_balance"></use></svg> Impuesto sobre la Renta (ISR)</td>
+          <td>Base imponible: ${formatUSD(calc.baseImponibleISR)} (${tramoTxt})</td>
+          <td style="text-align:center;"><span class="val-negative">-</span></td>
+          <td style="text-align:right;" class="val-negative tabular">${formatUSD(calc.isr)}</td>
+        </tr>
+        <tr class="table-subtotal-row">
+          <td colspan="2"><strong>Subtotal después de deducciones de ley</strong></td>
+          <td style="text-align:center;">=</td>
+          <td style="text-align:right;" class="val-neutral tabular">${formatUSD(calc.subtotalLegal)}</td>
+        </tr>
+      `;
+
+      if (t.tienePension) {
+        rowsHTML += `
+          <tr>
+            <td><svg class="ic"><use href="#ic-family_restroom"></use></svg> <strong>Retención por Pensión Alimenticia</strong></td>
+            <td>Ordenada por: ${t.autoridadPension || 'Autoridad judicial'} (Crédito Superpreferente)</td>
+            <td style="text-align:center;"><span class="val-negative">-</span></td>
+            <td style="text-align:right;" class="val-negative tabular">${formatUSD(calc.montoPension)}</td>
+          </tr>
+        `;
+      }
+
+      if (t.tieneEmbargo) {
+        const ordenTxt = t.ordenJudicialEmbargo === "Si" ? "Con orden judicial" : "<strong style='color:var(--rojo);'>SIN ORDEN JUDICIAL</strong>";
+        rowsHTML += `
+          <tr>
+            <td><svg class="ic"><use href="#ic-gavel"></use></svg> Embargo por Deuda Ordinaria</td>
+            <td>${ordenTxt} (Tope máximo legal calculado: ${formatUSD(calc.maximoEmbargableOrdinario)})</td>
+            <td style="text-align:center;"><span class="val-negative">-</span></td>
+            <td style="text-align:right;" class="val-negative tabular">${formatUSD(calc.montoEmbargo)}</td>
+          </tr>
+        `;
+      }
+
+      if (calc.otrosDescuentos && calc.otrosDescuentos.length > 0) {
+        calc.otrosDescuentos.forEach(d => {
+          const warning = d.fundamento === "SIN FUNDAMENTO DECLARADO" ? "<strong style='color:var(--rojo);'> [SIN FUNDAMENTO]</strong>" : "";
+          rowsHTML += `
+            <tr>
+              <td>Deducción: ${d.descripcion}</td>
+              <td>Fundamento: ${d.fundamento}${warning}</td>
+              <td style="text-align:center;"><span class="val-negative">-</span></td>
+              <td style="text-align:right;" class="val-negative tabular">${formatUSD(d.monto)}</td>
+            </tr>
+          `;
+        });
+      }
+
+      rowsHTML += `
+        <tr class="table-total-row">
+          <td colspan="2"><strong>TOTAL SALARIO LÍQUIDO FINAL</strong></td>
+          <td style="text-align:center;"><strong>=</strong></td>
+          <td style="text-align:right;" class="val-neutral tabular" style="font-size:1.15rem; color:var(--azul-600);">${formatUSD(calc.salarioLiquido)}</td>
+        </tr>
+      `;
+
+      // PARTE 3: PINTAR TABLA DE COSTO DEL EMPLEADOR
+      document.getElementById("patronal-table-body").innerHTML = `
+        <tr>
+          <td><svg class="ic"><use href="#ic-attach_money"></use></svg> Salario Bruto Mensual</td>
+          <td>Remuneración ordinaria acordada</td>
+          <td style="text-align:right;" class="tabular">${formatUSD(calc.salarioBruto)}</td>
+        </tr>
+        <tr>
+          <td><svg class="ic"><use href="#ic-health_and_safety"></use></svg> ISSS Patronal (Salud)</td>
+          <td>7.50% (Techo cotizable: ${formatUSD(PARAMS.isss.techoCotizable)})</td>
+          <td style="text-align:right;" class="tabular">${formatUSD(calc.isssPatronal)}</td>
+        </tr>
+        <tr>
+          <td><svg class="ic"><use href="#ic-savings"></use></svg> AFP Patronal (Previsión)</td>
+          <td>8.75% (Base cotizable: ${formatUSD(calc.baseCotizableAFP)})</td>
+          <td style="text-align:right;" class="tabular">${formatUSD(calc.afpPatronal)}</td>
+        </tr>
+        <tr>
+          <td><svg class="ic"><use href="#ic-work"></use></svg> Aporte Patronal INSAFORP</td>
+          <td>1.00% sobre salario bruto mensual</td>
+          <td style="text-align:right;" class="tabular">${formatUSD(calc.insaforpPatronal)}</td>
+        </tr>
+        <tr>
+          <td><svg class="ic"><use href="#ic-receipt_long"></use></svg> Provisión Mensual de Aguinaldo</td>
+          <td>${calc.diasAguinaldo} días anuales según antigüedad (${((calc.diasAguinaldo/30)*calc.salarioBruto/12).toFixed(2)}/mes)</td>
+          <td style="text-align:right;" class="tabular">${formatUSD(calc.provisionAguinaldo)}</td>
+        </tr>
+        <tr>
+          <td><svg class="ic"><use href="#ic-receipt_long"></use></svg> Provisión Mensual de Vacación</td>
+          <td>15 días anuales + 30% recargo legal de ley</td>
+          <td style="text-align:right;" class="tabular">${formatUSD(calc.provisionVacacion)}</td>
+        </tr>
+        <tr>
+          <td><svg class="ic"><use href="#ic-balance"></use></svg> Provisión Mensual de Indemnización</td>
+          <td>30 días de salario por año / 12 meses</td>
+          <td style="text-align:right;" class="tabular">${formatUSD(calc.provisionIndemnizacion)}</td>
+        </tr>
+      `;
+
+      document.getElementById("res-costo-total-empleador").textContent = formatUSD(calc.costoTotalEmpleador);
+
+      // PARTE 3: Ratio de erogación patronal por cada $1.00 de salario
+      const ratioEroga = calc.salarioBruto > 0 ? (calc.costoTotalEmpleador / calc.salarioBruto).toFixed(2) : "0.00";
+      const txtRatio = document.getElementById("txt-costo-ratio");
+      if (txtRatio) {
+        txtRatio.textContent = `Por cada $1.00 de salario, el empleador eroga $${ratioEroga}`;
+      }
+    }
+
+    tbody.innerHTML = rowsHTML;
+
+    // Renderizar Alertas y guardar estado
+    ultimasAlertas = alertas;
+    renderizarAlertas(alertas);
+  }
+
+  let ultimasAlertas = [];
+
+  // Renderizar Alertas con Iconos SVG y Trazabilidad Desplegable (Parte 6)
+  function renderizarAlertas(alertas) {
+    const listContainer = document.getElementById("alerts-list-container");
+    const pillsContainer = document.getElementById("alerts-pills-container");
+    const statusText = document.getElementById("alerts-status-text");
+
+    let countRojas = 0;
+    let countAmarillas = 0;
+    let countAzules = 0;
+    let countVerdes = 0;
+
+    alertas.forEach(a => {
+      if (a.severidad === "ROJA") countRojas++;
+      if (a.severidad === "AMARILLA") countAmarillas++;
+      if (a.severidad === "AZUL") countAzules++;
+      if (a.severidad === "VERDE") countVerdes++;
+    });
+
+    if (countRojas > 0) {
+      statusText.innerHTML = `<span style="color:var(--rojo); font-weight:800;">Atención Crítica Requerida (${countRojas} infracción/es detectada/s)</span>`;
+    } else if (countAmarillas > 0) {
+      statusText.innerHTML = `<span style="color:var(--ambar); font-weight:800;">Advertencias de Riesgo Jurídico (${countAmarillas})</span>`;
+    } else if (countVerdes > 0) {
+      statusText.innerHTML = `<span style="color:var(--verde); font-weight:800;">Conforme a Derecho</span>`;
+    } else {
+      statusText.textContent = "Evaluación finalizada";
+    }
+
+    let pillsHTML = "";
+    if (countRojas > 0) {
+      pillsHTML += `<span class="pill pill-red"><svg class="ic"><use href="#ic-error"></use></svg> ${countRojas} Crítica${countRojas > 1 ? 's' : ''}</span>`;
+    }
+    if (countAmarillas > 0) {
+      pillsHTML += `<span class="pill pill-amber"><svg class="ic"><use href="#ic-warning"></use></svg> ${countAmarillas} Advertencia${countAmarillas > 1 ? 's' : ''}</span>`;
+    }
+    if (countAzules > 0) {
+      pillsHTML += `<span class="pill pill-blue"><svg class="ic"><use href="#ic-info"></use></svg> ${countAzules} Informativa${countAzules > 1 ? 's' : ''}</span>`;
+    }
+    if (countVerdes > 0) {
+      pillsHTML += `<span class="pill pill-green"><svg class="ic"><use href="#ic-check_circle"></use></svg> ${countVerdes} Conforme</span>`;
+    }
+    pillsContainer.innerHTML = pillsHTML;
+
+    let cardsHTML = "";
+    const iconoMap = {
+      "ROJA": "ic-error",
+      "AMARILLA": "ic-warning",
+      "AZUL": "ic-info",
+      "VERDE": "ic-check_circle"
+    };
+
+    alertas.forEach((a, idx) => {
+      const icId = iconoMap[a.severidad] || "ic-info";
+      const traceText = a.trazabilidad ? a.trazabilidad.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") : "Sin desglose disponible";
+      cardsHTML += `
+        <article class="alert-card ${a.severidad}">
+          <div class="alert-header">
+            <div class="alert-title-wrap">
+              <svg class="ic"><use href="#${icId}"></use></svg>
+              <span>${a.titulo}</span>
+            </div>
+            <span class="alert-badge">${a.severidad}</span>
+          </div>
+          <p class="alert-message">${a.mensaje}</p>
+          <div class="alert-fundamento">
+            <svg class="ic"><use href="#ic-balance"></use></svg>
+            <span>Base legal preliminar:</span>
+            <em>${a.fundamento}</em>
+          </div>
+
+          <!-- PARTE 6: BOTÓN DESPLEGABLE DE TRAZABILIDAD -->
+          <div>
+            <button type="button" class="trazabilidad-toggle" data-target="trace-${idx}" title="Desplegar trazabilidad matemática y normativa">
+              <svg class="ic"><use href="#ic-expand_more"></use></svg>
+              <span>Ver trazabilidad y detalle de cálculo</span>
+            </button>
+            <div class="trazabilidad-box" id="trace-${idx}">${traceText}</div>
+          </div>
+        </article>
+      `;
+    });
+
+    listContainer.innerHTML = cardsHTML;
+
+    // Conectar eventos a los botones de trazabilidad
+    listContainer.querySelectorAll(".trazabilidad-toggle").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const targetId = btn.getAttribute("data-target");
+        const box = document.getElementById(targetId);
+        if (box) {
+          const isActive = box.classList.toggle("active");
+          btn.classList.toggle("active", isActive);
+          const span = btn.querySelector("span");
+          if (span) {
+            span.textContent = isActive ? "Ocultar detalle de cálculo" : "Ver trazabilidad y detalle de cálculo";
+          }
+        }
+      });
+    });
+  }
+
+  // ==========================================================================
+  // PARTE 5 — PLANILLA DE VARIOS TRABAJADORES (ESTADO Y PERSISTENCIA)
+  // ==========================================================================
+  let planillaPersonal = [];
+
+  function cargarPlanillaDeStorage() {
+    try {
+      const data = localStorage.getItem("planilla_personal_sv");
+      if (data) {
+        planillaPersonal = JSON.parse(data) || [];
+      }
+    } catch (e) {
+      planillaPersonal = [];
+    }
+  }
+
+  function guardarPlanillaEnStorage() {
+    try {
+      localStorage.setItem("planilla_personal_sv", JSON.stringify(planillaPersonal));
+    } catch (e) {}
+  }
+
+  function actualizarTablaPlanilla() {
+    const tbody = document.getElementById("planilla-table-body");
+    const tfoot = document.getElementById("planilla-table-footer");
+    const txtCumplimientoPct = document.getElementById("txt-cumplimiento-pct");
+    const fillCumplimiento = document.getElementById("cumplimiento-fill");
+    const txtCumplimientoDesc = document.getElementById("txt-cumplimiento-desc");
+
+    if (!planillaPersonal || planillaPersonal.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="8" style="text-align:center; color:var(--text-muted); padding:1.75rem;">
+            No hay colaboradores registrados en la planilla. Ingrese un expediente y presione <strong>"Guardar y Agregar a la Planilla de Personal"</strong>.
+          </td>
+        </tr>
+      `;
+      tfoot.style.display = "none";
+      txtCumplimientoPct.textContent = "100%";
+      txtCumplimientoPct.style.color = "var(--verde)";
+      fillCumplimiento.style.width = "100%";
+      fillCumplimiento.style.backgroundColor = "var(--verde)";
+      txtCumplimientoDesc.textContent = "100% de expedientes sin infracciones críticas (alertas rojas detectadas: 0).";
+      return;
+    }
+
+    tfoot.style.display = "table-footer-group";
+
+    let sumBruto = 0;
+    let sumDeducciones = 0;
+    let sumLiquido = 0;
+    let colabsSinRojas = 0;
+    let totalAlertasRojas = 0;
+
+    let rowsHTML = "";
+    planillaPersonal.forEach((item, index) => {
+      const pTrab = item.trabajador;
+      const pCalc = item.calc;
+      const pAlertas = item.alertas || [];
+
+      const bruto = pCalc.modo === "servicios" ? pCalc.honorariosBrutos : pCalc.salarioBruto;
+      sumBruto += bruto;
+      sumDeducciones += pCalc.totalDeducciones;
+      sumLiquido += pCalc.salarioLiquido;
+
+      let tieneRoja = false;
+      let tieneAmarilla = false;
+      let tieneAzul = false;
+
+      pAlertas.forEach(a => {
+        if (a.severidad === "ROJA") { tieneRoja = true; totalAlertasRojas++; }
+        if (a.severidad === "AMARILLA") tieneAmarilla = true;
+        if (a.severidad === "AZUL") tieneAzul = true;
+      });
+
+      let severidadMayor = "VERDE";
+      let badgeLabel = `${pAlertas.length} Conforme`;
+      if (tieneRoja) {
+        severidadMayor = "ROJA";
+        badgeLabel = `${pAlertas.length} Alerta${pAlertas.length > 1 ? 's' : ''}`;
+      } else if (tieneAmarilla) {
+        severidadMayor = "AMARILLA";
+        badgeLabel = `${pAlertas.length} Advertencia${pAlertas.length > 1 ? 's' : ''}`;
+      } else if (tieneAzul) {
+        severidadMayor = "AZUL";
+        badgeLabel = `${pAlertas.length} Informativa${pAlertas.length > 1 ? 's' : ''}`;
+      } else {
+        colabsSinRojas++;
+      }
+
+      if (!tieneRoja) {
+        colabsSinRojas++;
+      }
+
+      rowsHTML += `
+        <tr>
+          <td><strong>${pTrab.nombre || 'Colaborador'}</strong></td>
+          <td>${pTrab.cargo || 'Sin cargo'}</td>
+          <td>
+            <span style="font-size:0.82rem; font-weight:700; color:${pTrab.modo === 'servicios' ? 'var(--ambar-texto)' : 'var(--azul-600)'};">
+              ${pTrab.modo === 'servicios' ? 'Servicios' : 'Laboral'}
+            </span>
+          </td>
+          <td style="text-align:right;" class="val-positive tabular">${formatUSD(bruto)}</td>
+          <td style="text-align:right;" class="val-negative tabular">${formatUSD(pCalc.totalDeducciones)}</td>
+          <td style="text-align:right;" class="val-neutral tabular" style="font-weight:700; color:var(--azul-600);">${formatUSD(pCalc.salarioLiquido)}</td>
+          <td style="text-align:center;">
+            <span class="badge-alerta-count ${severidadMayor}">
+              <svg class="ic" style="width:1em; height:1em;"><use href="#ic-${severidadMayor === 'ROJA' ? 'error' : severidadMayor === 'AMARILLA' ? 'warning' : severidadMayor === 'AZUL' ? 'info' : 'check_circle'}"></use></svg>
+              ${badgeLabel}
+            </span>
+          </td>
+          <td style="text-align:center;">
+            <button type="button" class="btn-danger-sm btn-delete-row" data-index="${index}" title="Eliminar registro de la planilla">
+              <svg class="ic"><use href="#ic-delete"></use></svg>
+            </button>
+          </td>
+        </tr>
+      `;
+    });
+
+    tbody.innerHTML = rowsHTML;
+
+    // Actualizar Totales del Pie
+    document.getElementById("planilla-footer-count").textContent = `TOTALES (${planillaPersonal.length} colaborador${planillaPersonal.length > 1 ? 'es' : ''})`;
+    document.getElementById("planilla-total-bruto").textContent = formatUSD(sumBruto);
+    document.getElementById("planilla-total-deducciones").textContent = formatUSD(sumDeducciones);
+    document.getElementById("planilla-total-liquido").textContent = formatUSD(sumLiquido);
+
+    // Calcular Índice de Cumplimiento
+    const totalColaboradores = planillaPersonal.length;
+    const sinRojasUnicos = planillaPersonal.filter(p => !(p.alertas || []).some(a => a.severidad === "ROJA")).length;
+    const porcentajeCumplimiento = totalColaboradores > 0 ? Math.round((sinRojasUnicos / totalColaboradores) * 100) : 100;
+
+    txtCumplimientoPct.textContent = `${porcentajeCumplimiento}%`;
+    fillCumplimiento.style.width = `${porcentajeCumplimiento}%`;
+
+    if (porcentajeCumplimiento >= 80) {
+      txtCumplimientoPct.style.color = "var(--verde)";
+      fillCumplimiento.style.backgroundColor = "var(--verde)";
+    } else if (porcentajeCumplimiento >= 50) {
+      txtCumplimientoPct.style.color = "var(--ambar)";
+      fillCumplimiento.style.backgroundColor = "var(--ambar)";
+    } else {
+      txtCumplimientoPct.style.color = "var(--rojo)";
+      fillCumplimiento.style.backgroundColor = "var(--rojo)";
+    }
+
+    txtCumplimientoDesc.textContent = `${porcentajeCumplimiento}% de expedientes sin infracciones críticas (${sinRojasUnicos} de ${totalColaboradores} conformes o con observaciones menores; ${totalAlertasRojas} infracción/es crítica/s detectada/s).`;
+
+    // Eventos de eliminación por fila
+    tbody.querySelectorAll(".btn-delete-row").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const idx = parseInt(btn.getAttribute("data-index"));
+        if (!isNaN(idx) && idx >= 0 && idx < planillaPersonal.length) {
+          planillaPersonal.splice(idx, 1);
+          guardarPlanillaEnStorage();
+          actualizarTablaPlanilla();
+        }
+      });
+    });
+  }
+
+  // Botón Agregar a la Planilla
+  const btnAgregarPlanilla = document.getElementById("btn-agregar-planilla");
+  if (btnAgregarPlanilla) {
+    btnAgregarPlanilla.addEventListener("click", () => {
+      if (!ultimoCalculo || !ultimoTrabajador) {
+        procesarYRenderizar();
+      }
+
+      const nuevoRegistro = {
+        id: Date.now(),
+        trabajador: JSON.parse(JSON.stringify(ultimoTrabajador)),
+        calc: JSON.parse(JSON.stringify(ultimoCalculo)),
+        alertas: JSON.parse(JSON.stringify(ultimasAlertas))
+      };
+
+      planillaPersonal.push(nuevoRegistro);
+      guardarPlanillaEnStorage();
+      actualizarTablaPlanilla();
+
+      // Feedback visual en el botón
+      const span = btnAgregarPlanilla.querySelector("span");
+      const originalText = span ? span.textContent : "";
+      btnAgregarPlanilla.style.backgroundColor = "var(--verde)";
+      if (span) span.textContent = "¡Agregado a la Planilla con Éxito!";
+      setTimeout(() => {
+        btnAgregarPlanilla.style.backgroundColor = "";
+        if (span) span.textContent = originalText;
+      }, 1500);
+
+      // Desplazar suavemente a la tabla de planilla
+      const seccionPlanilla = document.getElementById("seccion-planilla");
+      if (seccionPlanilla) {
+        seccionPlanilla.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    });
+  }
+
+  // Botón Vaciar Planilla
+  const btnLimpiarPlanilla = document.getElementById("btn-limpiar-planilla");
+  if (btnLimpiarPlanilla) {
+    btnLimpiarPlanilla.addEventListener("click", () => {
+      if (planillaPersonal.length === 0) return;
+      planillaPersonal = [];
+      guardarPlanillaEnStorage();
+      actualizarTablaPlanilla();
+    });
+  }
+
+  // Cargar planilla persistida al arrancar
+  cargarPlanillaDeStorage();
+  actualizarTablaPlanilla();
+
+  // ==========================================================================
+  // PARTE 4 — MODAL COMPARADOR DE REGÍMENES (LA FUNCIÓN ESTRELLA)
+  // ==========================================================================
+  const btnComparar = document.getElementById("btn-comparar");
+  const modalComparador = document.getElementById("modal-comparador");
+  const btnCerrarComparador = document.getElementById("btn-cerrar-comparador");
+
+  function abrirComparador() {
+    // Tomar monto bruto actual del formulario o $500.00 por defecto
+    let montoBase = 500.00;
+    if (ultimoCalculo) {
+      montoBase = ultimoCalculo.modo === "servicios" ? ultimoCalculo.honorariosBrutos : ultimoCalculo.salarioBruto;
+    } else {
+      const inputBruto = currentMode === "servicios" ? document.getElementById("honorariosBrutos") : document.getElementById("salarioBruto");
+      const val = parseFloat(inputBruto ? inputBruto.value : 0);
+      if (val > 0) montoBase = val;
+    }
+    if (montoBase <= 0) montoBase = 500.00;
+
+    // 1. Simulación Régimen Laboral
+    const isssLab = Math.round(Math.min(montoBase, PARAMS.isss.techoCotizable) * PARAMS.isss.porcentajeTrabajador * 100) / 100;
+    const afpLab = Math.round(Math.min(montoBase, PARAMS.afp.techoCotizable) * PARAMS.afp.porcentajeTrabajador * 100) / 100;
+    const baseImponible = Math.max(0, montoBase - isssLab - afpLab);
+
+    let isrLab = 0;
+    for (const tramo of PARAMS.isr_tramos_mensual) {
+      if (baseImponible >= tramo.desde && baseImponible <= tramo.hasta) {
+        const exceso = Math.max(0, baseImponible - tramo.sobreExcesoDe);
+        isrLab = Math.round((tramo.cuotaFija + (exceso * tramo.porcentaje)) * 100) / 100;
+        break;
+      }
+    }
+    const deduccionesLab = Math.round((isssLab + afpLab + isrLab) * 100) / 100;
+    const liquidoLab = Math.round((montoBase - deduccionesLab) * 100) / 100;
+
+    // Cargas y Provisiones Patronales Laborales (Prestaciones equivalentes)
+    const isssPat = Math.round(Math.min(montoBase, PARAMS.isss.techoCotizable) * PARAMS.aportesPatronales.isss * 100) / 100;
+    const afpPat = Math.round(Math.min(montoBase, PARAMS.afp.techoCotizable) * PARAMS.aportesPatronales.afp * 100) / 100;
+    const insaforpPat = Math.round(montoBase * PARAMS.aportesPatronales.insaforp * 100) / 100;
+    const aguinaldoProv = Math.round(((15 / 30) * montoBase / 12) * 100) / 100; // 15 días tramo base
+    const vacacionProv = Math.round(((PARAMS.prestaciones.diasVacacion / 30 * montoBase * (1 + PARAMS.prestaciones.recargoVacacion)) / 12) * 100) / 100;
+    const indemnizacionProv = Math.round(((PARAMS.prestaciones.diasIndemnizacionPorAnio / 30 * montoBase) / 12) * 100) / 100;
+
+    const totalPrestacionesEquivalentes = Math.round((isssPat + afpPat + insaforpPat + aguinaldoProv + vacacionProv + indemnizacionProv) * 100) / 100;
+
+    // 2. Simulación Régimen Servicios Profesionales
+    const retencionServicios = Math.round(montoBase * PARAMS.servicios.porcentajeRetencionISR * 100) / 100;
+    const liquidoServicios = Math.round((montoBase - retencionServicios) * 100) / 100;
+
+    // 3. Balance Comparativo
+    const diferenciaEfectivo = Math.round((liquidoServicios - liquidoLab) * 100) / 100;
+
+    // Inyectar en el DOM del Modal
+    document.getElementById("comp-monto-base").textContent = formatUSD(montoBase);
+    document.getElementById("comp-lab-bruto").textContent = formatUSD(montoBase);
+    document.getElementById("comp-lab-deducciones").textContent = "-" + formatUSD(deduccionesLab);
+    document.getElementById("comp-lab-liquido").textContent = formatUSD(liquidoLab);
+
+    document.getElementById("comp-ser-bruto").textContent = formatUSD(montoBase);
+    document.getElementById("comp-ser-deducciones").textContent = "-" + formatUSD(retencionServicios);
+    document.getElementById("comp-ser-liquido").textContent = formatUSD(liquidoServicios);
+
+    document.getElementById("comp-diferencia-efectivo").textContent = "+" + formatUSD(Math.max(0, diferenciaEfectivo)) + " / mes";
+    document.getElementById("comp-prestaciones-renunciadas").textContent = "-" + formatUSD(totalPrestacionesEquivalentes) + " / mes";
+
+    modalComparador.classList.add("active");
+  }
+
+  function cerrarComparador() {
+    modalComparador.classList.remove("active");
+  }
+
+  if (btnComparar) {
+    btnComparar.addEventListener("click", abrirComparador);
+  }
+  if (btnCerrarComparador) {
+    btnCerrarComparador.addEventListener("click", cerrarComparador);
+  }
+  if (modalComparador) {
+    modalComparador.addEventListener("click", (e) => {
+      if (e.target === modalComparador) cerrarComparador();
+    });
+  }
+
+  // ==========================================================================
+  // PARTE 7 — MODO PRESENTACIÓN Y EVENTOS GENERALES
+  // ==========================================================================
+  const btnSalirPresentacion = document.getElementById("btn-salir-presentacion");
+
+  function toggleModoPresentacion() {
+    const activo = document.body.classList.toggle("modo-presentacion");
+    const btnLabel = btnFullscreen ? btnFullscreen.querySelector("span") : null;
+    if (btnLabel) {
+      btnLabel.textContent = activo ? "Salir" : "Presentación";
+    }
+  }
+
+  if (btnFullscreen) {
+    btnFullscreen.addEventListener("click", toggleModoPresentacion);
+  }
+  if (btnSalirPresentacion) {
+    btnSalirPresentacion.addEventListener("click", toggleModoPresentacion);
+  }
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    procesarYRenderizar();
+  });
+
+  // Cargar caso de ejemplo
+  btnEjemplo.addEventListener("click", () => {
+    if (currentMode === "servicios") {
+      document.getElementById("nombreServicios").value = "Ing. Rodrigo Alejandro Portillo";
+      document.getElementById("servicioContratado").value = "Soporte Técnico y Redes";
+      document.getElementById("honorariosBrutos").value = "380.00";
+      document.getElementById("periodicidadPago").value = "Mensual fija";
+      document.getElementById("duracionMeses").value = "18";
+      document.getElementById("sectorReferenciaServicios").value = "comercio_servicios";
+
+      checkRenovado.checked = true;
+      panelRenovaciones.classList.add("active");
+      document.getElementById("numRenovaciones").value = "4";
+
+      checkInscritoIVA.checked = true;
+      checkAfiliacionVoluntaria.checked = false;
+      checkDescuentaSinVoluntaria.checked = false;
+      checkRetencionNoEnterada.checked = true;
+
+      checksSubordinacion[0].checked = true;
+      checksSubordinacion[1].checked = true;
+      checksSubordinacion[2].checked = true;
+      checksSubordinacion[3].checked = true;
+      checksSubordinacion[4].checked = true;
+      checksSubordinacion[5].checked = false;
+      updateSubordinacionCount();
+
+      descuentosContainer.innerHTML = "";
+      agregarFilaDescuento("Anticipo de honorarios", "30.00", "Pactado en cláusula contractual");
+
+    } else {
+      document.getElementById("nombre").value = "Carlos Roberto Menjívar Castillo";
+      document.getElementById("cargo").value = "Auxiliar de Bodega y Despacho";
+      document.getElementById("tipoTrabajador").value = "Permanente";
+      document.getElementById("sectorEconomico").value = "comercio_servicios";
+      document.getElementById("antiguedadAnios").value = "1";
+      document.getElementById("salarioBruto").value = "380.00"; // Bajo el mínimo vigente de $408.80
+
+      checkPension.checked = true;
+      panelPension.classList.add("active");
+      document.getElementById("montoPension").value = "120.00";
+      document.getElementById("autoridadPension").value = "Juzgado de Familia";
+
+      checkEmbargo.checked = true;
+      panelEmbargo.classList.add("active");
+      document.getElementById("montoEmbargo").value = "80.00";
+      document.getElementById("ordenJudicialEmbargo").value = "No";
+
+      checkRetencionNoEnterada.checked = false;
+
+      descuentosContainer.innerHTML = "";
+      agregarFilaDescuento("Préstamo Banco Agrícola", "90.00", "Préstamo bancario / mutuo (Art. 136 C.T. - máx 20%)");
+      agregarFilaDescuento("Daño a herramienta", "25.00", "SIN FUNDAMENTO DECLARADO");
+    }
+
+    procesarYRenderizar();
+  });
+
+  btnLimpiar.addEventListener("click", () => dejarTodoEnBlanco());
+
+  btnImprimir.addEventListener("click", () => {
+    procesarYRenderizar();
+    window.print();
+  });
+
+  // Exportar CSV (Consolidado de planilla completa o cálculo individual)
+  btnCSV.addEventListener("click", () => {
+    let csvContent = "\uFEFF"; // BOM UTF-8 para visualización correcta de tildes en Excel
+
+    if (planillaPersonal && planillaPersonal.length > 0) {
+      csvContent += "PLANILLA CONSOLIDADA DE PERSONAL - EL SALVADOR\r\n";
+      csvContent += `Fecha de Generacion,${new Date().toLocaleDateString("es-SV")}\r\n`;
+      csvContent += `Vigencia Legal,${PARAMS.vigencia}\r\n\r\n`;
+      csvContent += "Nombre,Cargo/Servicio,Regimen,Sector,Ingreso Bruto (USD),Deducciones (USD),Liquido a Pagar (USD),Alertas Criticas (Rojas),Advertencias (Amarillas),Dictamen Juridico\r\n";
+
+      planillaPersonal.forEach(item => {
+        const pTrab = item.trabajador;
+        const pCalc = item.calc;
+        const pAlertas = item.alertas || [];
+
+        const bruto = pCalc.modo === "servicios" ? pCalc.honorariosBrutos : pCalc.salarioBruto;
+        const rojas = pAlertas.filter(a => a.severidad === "ROJA").length;
+        const amarillas = pAlertas.filter(a => a.severidad === "AMARILLA").length;
+        const dictamen = pAlertas.map(a => `[${a.severidad}] ${a.titulo}`).join(" | ");
+
+        csvContent += `"${pTrab.nombre || ''}","${pTrab.cargo || ''}","${pTrab.modo === 'servicios' ? 'Servicios Profesionales' : 'Regimen Laboral'}","${PARAMS.sectoresLabels[pTrab.sector] || pTrab.sector}",$${bruto.toFixed(2)},$${pCalc.totalDeducciones.toFixed(2)},$${pCalc.salarioLiquido.toFixed(2)},${rojas},${amarillas},"${dictamen}"\r\n`;
+      });
+
+    } else {
+      if (!ultimoCalculo) {
+        procesarYRenderizar();
+      }
+      const calc = ultimoCalculo;
+      const t = ultimoTrabajador;
+
+      csvContent += "REPORTE DE LIQUIDACION INDIVIDUAL - EL SALVADOR\r\n";
+      csvContent += `Fecha,${new Date().toLocaleDateString("es-SV")}\r\n`;
+      csvContent += `Colaborador/Prestador,${t.nombre}\r\n`;
+      csvContent += `Cargo/Servicio,${t.cargo}\r\n`;
+      csvContent += `Modo,${t.modo === 'servicios' ? 'Prestacion de Servicios' : 'Regimen Laboral'}\r\n`;
+      csvContent += `Sector,${PARAMS.sectoresLabels[t.sector] || t.sector}\r\n`;
+      csvContent += `Salario Bruto / Honorarios,$${(t.modo === 'servicios' ? calc.honorariosBrutos : calc.salarioBruto).toFixed(2)}\r\n`;
+      csvContent += `Total Deducciones,$${calc.totalDeducciones.toFixed(2)}\r\n`;
+      csvContent += `Liquido Final a Percibir,$${calc.salarioLiquido.toFixed(2)}\r\n`;
+
+      if (t.modo === "laboral") {
+        csvContent += `Costo Total del Empleador,$${calc.costoTotalEmpleador.toFixed(2)}\r\n`;
+        csvContent += `ISSS Patronal 7.5%,$${calc.isssPatronal.toFixed(2)}\r\n`;
+        csvContent += `AFP Patronal 8.75%,$${calc.afpPatronal.toFixed(2)}\r\n`;
+        csvContent += `INSAFORP 1%,$${calc.insaforpPatronal.toFixed(2)}\r\n`;
+        csvContent += `Provision Aguinaldo,$${calc.provisionAguinaldo.toFixed(2)}\r\n`;
+        csvContent += `Provision Vacacion,$${calc.provisionVacacion.toFixed(2)}\r\n`;
+        csvContent += `Provision Indemnizacion,$${calc.provisionIndemnizacion.toFixed(2)}\r\n`;
+      }
+
+      csvContent += "\r\nDICTAMEN DE ALERTAS JURIDICAS:\r\n";
+      csvContent += "Severidad,Codigo,Titulo,Mensaje,Fundamento\r\n";
+      (ultimasAlertas || []).forEach(a => {
+        csvContent += `"${a.severidad}","${a.codigo}","${a.titulo}","${a.mensaje.replace(/"/g, '""')}","${a.fundamento}"\r\n`;
+      });
+    }
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    const filename = planillaPersonal && planillaPersonal.length > 0
+      ? `Planilla_Consolidada_El_Salvador_${new Date().toISOString().slice(0, 10)}.csv`
+      : `Liquidacion_${((ultimoTrabajador && ultimoTrabajador.nombre) || "personal").replace(/\s+/g, "_")}.csv`;
+    link.setAttribute("download", filename);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  });
+
+  // Iniciar en blanco
+  dejarTodoEnBlanco();
+});
+</script>
+
+<!-- ==========================================================================
+     DOCUMENTACIÓN TÉCNICA DE LAS REGLAS DE ALERTA IMPLEMENTADAS
+     ==========================================================================
+     SISTEMA DE PLANILLA Y HONORARIOS CON ALERTAS JURÍDICAS — EL SALVADOR
+     Marco Legal: Código de Trabajo, Código de Familia, CPCM, Código Tributario,
+                  Ley del Seguro Social, Ley SAP, Ley de INSAFORP.
+     Decretos Tarifarios: Decretos Ejecutivos No. 11 y 12.
+
+     A. RÉGIMEN LABORAL (CONTRATO INDIVIDUAL DE TRABAJO):
+     1. ROJA — SALARIO_BAJO_MINIMO:
+        Disparador: Salario Bruto < Salario Mínimo Legal del sector.
+        Fundamento: Código de Trabajo (Art. 144) y Decretos Ejecutivos vigentes. Irrenunciabilidad del salario mínimo.
+     2. ROJA — DESCUENTO_SIN_FUNDAMENTO:
+        Disparador: Cualquier deducción con fundamento "SIN FUNDAMENTO DECLARADO".
+        Fundamento: Código de Trabajo (Art. 136). Prohibición de deducciones sin causa legal expresa o autorización voluntaria.
+     3. ROJA — COTIZACION_NO_ENTERADA:
+        Disparador: Checkbox cotización retenida y no enterada marcado.
+        Fundamento: Ley del Seguro Social y Ley SAP. Apropiación indebida y mora previsional punible.
+     4. ROJA — EMBARGO_SIN_ORDEN_JUDICIAL:
+        Disparador: Embargo aplicado sin que conste auto u orden judicial (Si/No).
+        Fundamento: Código Procesal Civil y Mercantil y Código de Trabajo. Reserva judicial e inembargabilidad extrajudicial.
+     5. AMARILLA — EXCESO_EMBARGO_ORDINARIO_INEMBARGABLE:
+        Disparador: Salario líquido disponible <= Salario mínimo del sector.
+        Fundamento: CPCM Art. 622 y Código de Trabajo. Inembargabilidad absoluta del salario mínimo para deudas comunes.
+     6. AMARILLA — EXCESO_EMBARGO_ORDINARIO_TOPE:
+        Disparador: Embargo aplicado > 20% del excedente sobre el salario mínimo.
+        Fundamento: CPCM Art. 622 y Código de Trabajo. Límite máximo del 20% sobre el excedente del salario mínimo.
+     7. AMARILLA — EXCESO_DESCUENTO_BANCARIO_MUTUO:
+        Disparador: Descuentos bancarios / mutuo > 20% del salario ordinario pactado.
+        Fundamento: Código de Trabajo Art. 136 literal b). Tope infranqueable del 20% para préstamos bancarios.
+     8. AZUL — RETENCION_ALIMENTOS_PREFERENTE:
+        Disparador: Constancia de orden de pensión alimenticia activa.
+        Fundamento: Código de Familia. Carácter de crédito superpreferente y prioridad sobre acreencias comunes.
+     9. AMARILLA — PENSION_ALIMENTICIA_ELEVADA:
+        Disparador: Cuota alimenticia > 30% del subtotal líquido.
+        Fundamento: Código de Familia. Principio de proporcionalidad y congrua subsistencia.
+     10. AMARILLA — LIQUIDO_DESPROPORCIONADO:
+        Disparador: Salario líquido final < 50% del salario bruto.
+        Fundamento: Código de Trabajo. Protección del salario como medio vital de subsistencia.
+     11. VERDE — CONFORME_A_DERECHO:
+        Disparador: Cero contingencias o infracciones jurídicas detectadas.
+        Fundamento: Cumplimiento pleno de la normativa laboral salvadoreña.
+
+     B. RÉGIMEN PRESTACIÓN DE SERVICIOS (PROFESIONALES):
+     12. ROJA — SIMULACION_RELACION_LABORAL:
+        Disparador: 3 o más de los 6 indicadores de subordinación marcados.
+        Fundamento: Código de Trabajo (Art. 19 y 20). Presunción de contrato individual y principio de Primacía de la Realidad.
+     13. ROJA — COTIZACIONES_INDEBIDAS_SERVICIOS:
+        Disparador: Descuento de ISSS/AFP sin que exista afiliación voluntaria legal.
+        Fundamento: Ley del Seguro Social y Ley SAP. Improcedencia de retenciones obreras en contratos civiles.
+     14. AMARILLA — CONTRATACION_PERMANENTE_ENCUBIERTA:
+        Disparador: Duración > 12 meses o renovaciones sucesivas >= 3.
+        Fundamento: Código de Trabajo (Art. 25). Desnaturalización de plazos en labores permanentes.
+     15. AMARILLA — HONORARIOS_BAJO_MINIMO_DEDICACION_COMPLETA:
+        Disparador: Honorarios < Salario mínimo con horario fijo y exclusividad.
+        Fundamento: Constitución de la República y Código de Trabajo. Umbral vital de subsistencia.
+     16. AZUL — SIN_COBERTURA_SEGURIDAD_SOCIAL:
+        Disparador: Contratación de servicios sin afiliación voluntaria independiente.
+        Fundamento: Ley del Seguro Social y Ley SAP. Carencia de cobertura previsional y de salud patronal.
+     17. AMARILLA — RETENCION_RENTA_NO_ENTERADA:
+        Disparador: Retención 10% ISR practicada y no enterada al fisco (DGII).
+        Fundamento: Código Tributario. Responsabilidad directa y sanciones al Agente de Retención.
+     18. VERDE — SERVICIOS_AUTONOMOS_CONFORME:
+        Disparador: Contratación independiente sin notas de subordinación laboral.
+        Fundamento: Código Civil y Código de Comercio.
+     ========================================================================== -->
+
+</body>
+</html>
