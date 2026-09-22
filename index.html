@@ -110,6 +110,58 @@ main{max-width:1200px;margin:0 auto;padding:var(--e6) var(--e4) 72px}
 [data-tema="oscuro"] .metricas .destaque span{color:var(--suave)}
 [data-tema="oscuro"] .metricas .destaque strong{color:var(--neutro-50)}
 
+/* ---- pestañas ---- */
+.tabs{
+  display:flex; align-items:center; gap:var(--e1); margin-bottom:var(--e5);
+  border-bottom:1px solid var(--neutro-200); flex-wrap:wrap;
+}
+.tabs [role="tab"]{
+  background:none; border:0; border-bottom:2px solid transparent; border-radius:0;
+  padding:12px 18px; min-height:48px; font-size:15px; font-weight:600; color:var(--suave);
+  display:inline-flex; align-items:center; gap:9px; margin-bottom:-1px;
+  transition:color .18s ease,border-color .18s ease;
+}
+.tabs [role="tab"]:hover{color:var(--grafito-900)}
+.tabs [role="tab"][aria-selected="true"]{color:var(--grafito-900); border-bottom-color:var(--grafito-900)}
+.tab-contador{
+  font-size:12px; font-weight:700; padding:2px 8px; border-radius:99px;
+  background:var(--neutro-100); color:var(--suave);
+}
+[aria-selected="true"] .tab-contador{background:var(--grafito-900); color:var(--neutro-0)}
+.tab-contador.alerta-n{background:var(--rojo-suave); color:var(--rojo)}
+[aria-selected="true"] .tab-contador.alerta-n{background:var(--rojo); color:#fff}
+.periodo-sel{margin-left:auto; display:flex; align-items:center; gap:9px; padding-bottom:6px}
+.periodo-sel label{font-size:13px; color:var(--suave); font-weight:600}
+.periodo-sel select{width:auto; min-width:130px}
+[role="tabpanel"]:focus-visible{outline:3px solid var(--verde-vivo); outline-offset:4px}
+
+/* ---- gráfico de composición (SVG, sin librerías) ---- */
+.gr-wrap{display:grid; grid-template-columns:auto 1fr; gap:var(--e5); align-items:center}
+.gr-svg svg{display:block; width:190px; height:190px}
+.gr-leyenda{display:grid; gap:10px}
+.gr-fila{display:flex; align-items:center; gap:11px; font-size:14px}
+.gr-punto{width:13px; height:13px; border-radius:4px; flex:0 0 auto}
+.gr-fila b{margin-left:auto; font-weight:700; color:var(--grafito-900)}
+.gr-fila span.pc{color:var(--suave); font-size:13px; min-width:52px; text-align:right}
+.gr-vacio{color:var(--suave); font-size:14px; padding:var(--e5) 0}
+
+/* ---- buscador de la tabla ---- */
+.buscador{display:flex; gap:var(--e3); margin-bottom:var(--e4); flex-wrap:wrap}
+.buscador input{max-width:320px}
+.buscador select{max-width:220px}
+
+/* ---- auditoría consolidada ---- */
+.aud-persona{
+  border:1px solid var(--neutro-200); border-radius:var(--r-m);
+  padding:var(--e4); margin-bottom:var(--e3);
+}
+.aud-persona h3{display:flex; align-items:center; gap:10px; margin-bottom:10px; font-size:16px}
+.aud-persona h3 .muted{font-weight:500; font-size:13px}
+.aud-lista{display:grid; gap:7px}
+.aud-item{display:flex; align-items:flex-start; gap:9px; font-size:13.5px; padding:7px 0; border-top:1px solid var(--neutro-100)}
+.aud-item .pt{width:9px; height:9px; border-radius:99px; margin-top:6px; flex:0 0 auto}
+.aud-item .pt.e{background:var(--rojo)} .aud-item .pt.w{background:var(--ambar)} .aud-item .pt.i{background:var(--azul)}
+
 /* ---- paneles ---- */
 .workspace{display:grid;grid-template-columns:1.1fr .9fr;gap:var(--e4);align-items:start}
 .panel{background:var(--neutro-0);border:1px solid var(--neutro-200);border-radius:var(--r-l);padding:var(--e5);box-shadow:var(--sombra-s)}
@@ -379,7 +431,7 @@ body.presentacion .neto strong{font-size:56px}
 
   /* --- lo que nunca se imprime --- */
   header,.titulo,.metricas,form,.acciones,.params,.equipo,.seccion,.vacio,
-  .workspace>.panel,
+  .workspace>.panel,.tabs,.buscador,.gr-wrap,#grafico-desc,#tp-legal,
   #toast,.saltar,.texto-btn,.mini,#editor-equipo,#panel-comparador,
   .patronal,.alerta details,.conteo,.cumplimiento,.leyenda-req,
   #resumen-errores,.err-campo,.estado{display:none!important}
@@ -482,8 +534,14 @@ body.presentacion .neto strong{font-size:56px}
   #alertas.denso .alerta{break-inside:avoid; -webkit-column-break-inside:avoid; overflow:hidden}
   #alertas.denso .grupo{column-span:all; break-after:avoid}
 
+  /* --- los tabpanel ocultos igual deben poder imprimirse --- */
+  [role="tabpanel"][hidden]{display:block!important}
+  #tp-panel>.panel:not(#seccion-planilla){display:none!important}
+
   /* --- modo boleta (por defecto) vs modo planilla --- */
+  body:not(.imprimir-planilla) #tp-panel{display:none!important}
   body:not(.imprimir-planilla) #seccion-planilla{display:none!important}
+  body.imprimir-planilla #tp-planilla{display:none!important}
   body.imprimir-planilla .workspace{display:none!important}
   body.imprimir-planilla #seccion-planilla{
     display:block!important; border:0!important; padding:0!important;
@@ -642,13 +700,28 @@ input[aria-invalid="true"]:focus{box-shadow:0 0 0 3px var(--rojo-suave)}
     <div class="periodo"><b>Período mensual · USD</b><span id="exp-fecha"></span></div>
   </div>
 
-  <section class="metricas" aria-label="Resumen de la planilla">
-    <div><span>Personas en el registro</span><strong id="m-conteo">0</strong></div>
-    <div><span>Ingreso bruto acumulado</span><strong id="m-bruto">$0.00</strong></div>
-    <div><span>Total de deducciones</span><strong id="m-deducciones">$0.00</strong></div>
-    <div class="destaque"><span>Líquido a pagar</span><strong id="m-liquido">$0.00</strong></div>
-  </section>
+  <nav class="tabs" role="tablist" aria-label="Secciones del sistema">
+    <button role="tab" id="tab-planilla" aria-controls="tp-planilla" aria-selected="true" tabindex="0">
+      <svg class="ic" aria-hidden="true"><use href="#ic-calc"/></svg> Cálculo
+    </button>
+    <button role="tab" id="tab-panel" aria-controls="tp-panel" aria-selected="false" tabindex="-1">
+      <svg class="ic" aria-hidden="true"><use href="#ic-grupo"/></svg> Planilla
+      <span class="tab-contador" id="tab-n-registros" hidden>0</span>
+    </button>
+    <button role="tab" id="tab-legal" aria-controls="tp-legal" aria-selected="false" tabindex="-1">
+      <svg class="ic" aria-hidden="true"><use href="#ic-balanza"/></svg> Auditoría legal
+      <span class="tab-contador alerta-n" id="tab-n-alertas" hidden>0</span>
+    </button>
+    <div class="periodo-sel">
+      <label for="sel-periodo">Período</label>
+      <select id="sel-periodo">
+        <option value="mensual">Mensual</option>
+        <option value="quincenal">Quincenal</option>
+      </select>
+    </div>
+  </nav>
 
+  <section id="tp-planilla" role="tabpanel" aria-labelledby="tab-planilla" tabindex="0">
   <div class="workspace">
     <!-- ================= FORMULARIO ================= -->
     <section class="panel">
@@ -829,18 +902,28 @@ input[aria-invalid="true"]:focus{box-shadow:0 0 0 3px var(--rojo-suave)}
     </aside>
   </div>
 
-  <!-- ================= COMPARADOR ================= -->
-  <section class="panel" id="panel-comparador" hidden style="margin-top:16px">
+  </section>
+
+  <section id="tp-panel" role="tabpanel" aria-labelledby="tab-panel" tabindex="0" hidden>
+  <section class="metricas" aria-label="Resumen de la planilla">
+    <div><span>Personas en el registro</span><strong id="m-conteo">0</strong></div>
+    <div><span>Ingreso bruto acumulado</span><strong id="m-bruto">$0.00</strong></div>
+    <div><span>Total de deducciones</span><strong id="m-deducciones">$0.00</strong></div>
+    <div class="destaque"><span>Líquido a pagar</span><strong id="m-liquido">$0.00</strong></div>
+  </section>
+
+  <section class="panel" style="margin-top:16px">
     <div class="panel-head">
       <div>
-        <p class="eyebrow">Comparativa</p>
-        <h2><svg class="ic" aria-hidden="true"><use href="#ic-comparar"/></svg> El mismo monto, dos regímenes</h2>
+        <p class="eyebrow">Composición</p>
+        <h2><svg class="ic" aria-hidden="true"><use href="#ic-ahorro"/></svg> A dónde va el salario bruto</h2>
       </div>
-      <button class="texto-btn" type="button" id="btn-cerrar-comp">Cerrar</button>
     </div>
-    <div class="comparador" id="comparador"></div>
-    <div class="conclusion" id="conclusion-comp"></div>
-    <p class="regla-oro">La denominación del contrato no determina su naturaleza. Si concurren los elementos de subordinación, la relación es laboral aunque se documente como prestación de servicios.</p>
+    <div class="gr-wrap">
+      <div class="gr-svg" id="grafico" role="img" aria-labelledby="grafico-desc"></div>
+      <div class="gr-leyenda" id="grafico-leyenda"></div>
+    </div>
+    <p class="muted" id="grafico-desc" style="margin-top:12px"></p>
   </section>
 
   <!-- ================= PLANILLA ================= -->
@@ -851,6 +934,17 @@ input[aria-invalid="true"]:focus{box-shadow:0 0 0 3px var(--rojo-suave)}
         <h2><svg class="ic" aria-hidden="true"><use href="#ic-grupo"/></svg> Personas registradas</h2>
       </div>
       <button class="texto-btn" type="button" id="btn-csv"><svg class="ic" aria-hidden="true"><use href="#ic-bajar"/></svg> Exportar CSV</button>
+    </div>
+    <div class="buscador" id="buscador" hidden>
+      <label class="sr-only" for="q">Buscar persona</label>
+      <input id="q" type="search" placeholder="Buscar por nombre o cargo…" autocomplete="off">
+      <label class="sr-only" for="filtro">Filtrar por revisión</label>
+      <select id="filtro">
+        <option value="">Todas las personas</option>
+        <option value="e">Solo con alertas críticas</option>
+        <option value="w">Solo con puntos por revisar</option>
+        <option value="ok">Solo sin observaciones</option>
+      </select>
     </div>
     <div class="cumplimiento" id="cumplimiento" hidden>
       <span><b id="cump-pct">100%</b> sin errores jurídicos</span>
@@ -875,6 +969,34 @@ input[aria-invalid="true"]:focus{box-shadow:0 0 0 3px var(--rojo-suave)}
     </div>
   </section>
 
+  </section>
+
+  <section id="tp-legal" role="tabpanel" aria-labelledby="tab-legal" tabindex="0" hidden>
+  <section class="panel">
+    <div class="panel-head">
+      <div>
+        <p class="eyebrow">Auditoría</p>
+        <h2><svg class="ic" aria-hidden="true"><use href="#ic-escudo"/></svg> Alertas de toda la planilla</h2>
+      </div>
+      <span class="muted" id="auditoria-fecha"></span>
+    </div>
+    <div id="auditoria"></div>
+  </section>
+
+  <!-- ================= COMPARADOR ================= -->
+  <section class="panel" id="panel-comparador" hidden style="margin-top:16px">
+    <div class="panel-head">
+      <div>
+        <p class="eyebrow">Comparativa</p>
+        <h2><svg class="ic" aria-hidden="true"><use href="#ic-comparar"/></svg> El mismo monto, dos regímenes</h2>
+      </div>
+      <button class="texto-btn" type="button" id="btn-cerrar-comp">Cerrar</button>
+    </div>
+    <div class="comparador" id="comparador"></div>
+    <div class="conclusion" id="conclusion-comp"></div>
+    <p class="regla-oro">La denominación del contrato no determina su naturaleza. Si concurren los elementos de subordinación, la relación es laboral aunque se documente como prestación de servicios.</p>
+  </section>
+
   <!-- ================= PARÁMETROS ================= -->
   <details class="params">
     <summary><svg class="ic" aria-hidden="true"><use href="#ic-calc"/></svg> Parámetros del cálculo <span class="etq">Verificar antes de usar</span></summary>
@@ -896,6 +1018,8 @@ input[aria-invalid="true"]:focus{box-shadow:0 0 0 3px var(--rojo-suave)}
       </div>
     </form>
   </details>
+
+  </section>
 
   <section class="equipo">
     <div class="equipo-head">
@@ -933,7 +1057,8 @@ const PARAMS = {
   vigencia: "Valores de referencia · verificar decreto vigente",
   isss:  { trabajador: 3,    patronal: 7.5,  tope: 1000 },
   afp:   { trabajador: 7.25, patronal: 8.75, tope: 8000 },
-  insaforp: 1,
+  insaforp: 1, insaforpDesde: 365,   // 1% patronal solo si el salario alcanza este piso
+  periodo: { modo:"mensual", factor:1 },
   isrServicios: 10,
   // Tramos mensuales de referencia. Base = bruto - ISSS - AFP.
   isrTramos: [
@@ -966,17 +1091,26 @@ function diasAguinaldo(anios){
 }
 
 function calcularISR(base){
-  const t = PARAMS.isrTramos.find(x => base <= x.hasta) || PARAMS.isrTramos[PARAMS.isrTramos.length-1];
-  return { monto: r2(t.cuota + Math.max(0, base - t.exceso) * t.tasa / 100), tramo: t };
+  // Los tramos están expresados en base mensual y se escalan al período.
+  const f = PARAMS.periodo.factor;
+  const t = PARAMS.isrTramos.find(x => base <= r2(x.hasta * f)) || PARAMS.isrTramos[PARAMS.isrTramos.length-1];
+  return {
+    monto: r2(t.cuota * f + Math.max(0, base - r2(t.exceso * f)) * t.tasa / 100),
+    tramo: t
+  };
 }
 
 function calcularPlanilla(d){
   const laboral = d.modalidad === "laboral";
   const bruto = r2(d.bruto + d.bonos + d.comisiones);
+  // Factor del período: los topes, los tramos y el mínimo se escalan a la mitad
+  // en quincena. Los montos que escribe la persona ya son del período elegido.
+  const f = PARAMS.periodo.factor;
+  const minimoPeriodo = r2(d.minimo * f);
 
   // 1. Cotizaciones obligatorias (solo en relación laboral)
-  const baseIsss = Math.min(bruto, PARAMS.isss.tope);
-  const baseAfp  = Math.min(bruto, PARAMS.afp.tope);
+  const baseIsss = Math.min(bruto, r2(PARAMS.isss.tope * f));
+  const baseAfp  = Math.min(bruto, r2(PARAMS.afp.tope * f));
   const isss = laboral ? r2(baseIsss * PARAMS.isss.trabajador / 100) : 0;
   const afp  = laboral ? r2(baseAfp  * PARAMS.afp.trabajador  / 100) : 0;
 
@@ -1000,7 +1134,7 @@ function calcularPlanilla(d){
   const remanente = r2(disponible - alimentos);
 
   // 5. Embargo por deuda ordinaria — sobre el excedente del mínimo del remanente
-  const excedente = r2(Math.max(0, remanente - d.minimo));
+  const excedente = r2(Math.max(0, remanente - minimoPeriodo));
   const topeEmbargo = r2(excedente * PARAMS.limites.topeEmbargo / 100);
 
   // 6. Aplicación de la deuda: requiere tipo Y fundamento
@@ -1018,14 +1152,14 @@ function calcularPlanilla(d){
   // 7. Costo del empleador
   const patIsss = laboral ? r2(baseIsss * PARAMS.isss.patronal / 100) : 0;
   const patAfp  = laboral ? r2(baseAfp  * PARAMS.afp.patronal  / 100) : 0;
-  const insaforp = laboral ? r2(bruto * PARAMS.insaforp / 100) : 0;
+  const insaforp = (laboral && bruto >= r2(PARAMS.insaforpDesde * f)) ? r2(bruto * PARAMS.insaforp / 100) : 0;
   const dAgui = diasAguinaldo(d.antiguedad);
   const provAguinaldo = laboral ? r2((dAgui/30) * bruto / 12) : 0;
   const provVacacion  = laboral ? r2((PARAMS.prestaciones.diasVacacion/30) * bruto * (1+PARAMS.prestaciones.recargoVacacion/100) / 12) : 0;
   const provIndemniz  = laboral ? r2((PARAMS.prestaciones.diasIndemnizacion/30) * bruto / 12) : 0;
   const costoTotal = r2(bruto + patIsss + patAfp + insaforp + provAguinaldo + provVacacion + provIndemniz);
 
-  return { laboral, bruto, baseIsss, baseAfp, isss, afp, baseIsr, isr, tramoIsr, disponible,
+  return { laboral, bruto, minimoPeriodo, factor:f, baseIsss, baseAfp, isss, afp, baseIsr, isr, tramoIsr, disponible,
     alimentos, alimentosRecortado, remanente, excedente, topeEmbargo, tieneRespaldo,
     deudaAplicada, deudaConforme, deducciones, liquido, conforme,
     patIsss, patAfp, insaforp, dAgui, provAguinaldo, provVacacion, provIndemniz, costoTotal };
@@ -1053,22 +1187,22 @@ function evaluarAlertas(d, c){
   const pct = (n, base) => base > 0 ? (n/base*100).toFixed(2)+"%" : "—";
 
   // --- 1. Salario bajo el mínimo (sobre el bruto)
-  if (c.laboral && c.bruto < d.minimo) {
+  if (c.laboral && c.bruto < c.minimoPeriodo) {
     add("error","Salario bajo el mínimo aplicable",
-      `El ingreso bruto de ${usd(c.bruto)} está por debajo del mínimo de ${usd(d.minimo)} para la categoría "${d.categoria||"no indicada"}". Faltan ${usd(d.minimo-c.bruto)}.`,
+      `El ingreso bruto de ${usd(c.bruto)} está por debajo del mínimo de ${usd(c.minimoPeriodo)} para la categoría "${d.categoria||"no indicada"}". Faltan ${usd(d.minimo-c.bruto)}.`,
       "Código de Trabajo — salario mínimo y protección del salario [verificar artículo]",
-      [fila("Mínimo aplicable", usd(d.minimo)), fila("Ingreso bruto registrado", usd(c.bruto)), fila("DIFERENCIA", usd(r2(d.minimo-c.bruto)))].join("\n"));
+      [fila("Mínimo aplicable", usd(c.minimoPeriodo)), fila("Ingreso bruto registrado", usd(c.bruto)), fila("DIFERENCIA", usd(r2(c.minimoPeriodo-c.bruto)))].join("\n"));
   }
 
   // --- 2. Líquido por debajo del mínimo (el hueco jurídico clásico)
-  if (c.laboral && c.bruto >= d.minimo && c.liquido < d.minimo) {
+  if (c.laboral && c.bruto >= c.minimoPeriodo && c.liquido < c.minimoPeriodo) {
     add("error","El líquido queda bajo el salario mínimo",
-      `El bruto respeta el mínimo, pero tras los descuentos el trabajador recibe ${usd(c.liquido)}, menos que el mínimo de ${usd(d.minimo)}. Revisá qué descuentos invaden la porción protegida.`,
+      `El bruto respeta el mínimo, pero tras los descuentos el trabajador recibe ${usd(c.liquido)}, menos que el mínimo de ${usd(c.minimoPeriodo)}. Revisá qué descuentos invaden la porción protegida.`,
       "Código de Trabajo — inembargabilidad del salario mínimo [verificar artículo]",
       [fila("Ingreso bruto", usd(c.bruto)), fila("(-) Cotizaciones y renta", usd(r2(c.isss+c.afp+c.isr))),
        fila("(-) Pensión alimenticia", usd(c.alimentos)), fila("(-) Deudas aplicadas", usd(c.deudaAplicada)),
-       fila("= LÍQUIDO", usd(c.liquido)), fila("Mínimo aplicable", usd(d.minimo)),
-       fila("INVASIÓN DEL MÍNIMO", usd(r2(d.minimo-c.liquido)))].join("\n"));
+       fila("= LÍQUIDO", usd(c.liquido)), fila("Mínimo aplicable", usd(c.minimoPeriodo)),
+       fila("INVASIÓN DEL MÍNIMO", usd(r2(c.minimoPeriodo-c.liquido)))].join("\n"));
   }
 
   // --- 3. Líquido desproporcionado
@@ -1105,17 +1239,17 @@ function evaluarAlertas(d, c){
   if (d.deuda > 0 && d.deudaTipo === "ordinaria") {
     if (c.excedente <= 0) {
       add("error","El salario no admite embargo por deuda ordinaria",
-        `Tras las cotizaciones y la pensión alimenticia quedan ${usd(c.remanente)}, que no superan el mínimo de ${usd(d.minimo)}. No hay excedente embargable por deuda ordinaria.`,
+        `Tras las cotizaciones y la pensión alimenticia quedan ${usd(c.remanente)}, que no superan el mínimo de ${usd(c.minimoPeriodo)}. No hay excedente embargable por deuda ordinaria.`,
         "Código de Trabajo — inembargabilidad del salario mínimo [verificar artículo]",
         [fila("Salario disponible", usd(c.disponible)), fila("(-) Pensión alimenticia", usd(c.alimentos)),
-         fila("= Remanente", usd(c.remanente)), fila("Mínimo aplicable", usd(d.minimo)),
+         fila("= Remanente", usd(c.remanente)), fila("Mínimo aplicable", usd(c.minimoPeriodo)),
          fila("EXCEDENTE EMBARGABLE", usd(0))].join("\n"));
     } else {
       add("info","Embargo por deuda ordinaria: verificar el límite",
         `El excedente sobre el mínimo es ${usd(c.excedente)}. El tope de referencia (${PARAMS.limites.topeEmbargo}%) da ${usd(c.topeEmbargo)}. Verificá la orden judicial y el límite legal aplicable.`,
         "Código de Trabajo — límite de embargo sobre el excedente [verificar artículo]",
         [fila("Salario disponible", usd(c.disponible)), fila("(-) Pensión alimenticia", usd(c.alimentos)),
-         fila("= Remanente", usd(c.remanente)), fila("(-) Mínimo protegido", usd(d.minimo)),
+         fila("= Remanente", usd(c.remanente)), fila("(-) Mínimo protegido", usd(c.minimoPeriodo)),
          fila("= Excedente", usd(c.excedente)), fila(`Tope ${PARAMS.limites.topeEmbargo}% del excedente`, usd(c.topeEmbargo)),
          fila("Embargo solicitado", usd(d.deuda))].join("\n"));
       if (d.deuda > c.topeEmbargo) {
@@ -1403,6 +1537,13 @@ function pintarPlanilla(){
   $("#m-deducciones").textContent = usd(t.deducciones);
   $("#m-liquido").textContent = usd(t.liquido);
   $("#vacio").hidden = registros.length > 0;
+  $("#buscador").hidden = registros.length === 0;
+  const nreg = $("#tab-n-registros"); nreg.textContent = registros.length; nreg.hidden = !registros.length;
+  let critic = 0;
+  for (const reg of registros) critic += evaluarAlertas(reg, calcularPlanilla(reg)).filter(a => a.nivel === "error").length;
+  const nal = $("#tab-n-alertas"); nal.textContent = critic; nal.hidden = !critic;
+  if (!$("#tp-panel").hidden) pintarGrafico();
+  if (!$("#tp-legal").hidden) pintarAuditoria();
   $("#tabla-wrap").hidden = registros.length === 0;
   $("#cumplimiento").hidden = registros.length === 0;
   if (registros.length) {
@@ -1631,6 +1772,162 @@ $("#btn-tema").addEventListener("click", () => {
 });
 $("#btn-presentar").addEventListener("click", () => document.body.classList.toggle("presentacion"));
 document.addEventListener("keydown", e => { if (e.key === "Escape") document.body.classList.remove("presentacion"); });
+
+/* ============================================================
+   E. PESTAÑAS — patrón ARIA: flechas, Inicio/Fin y foco gestionado
+   ============================================================ */
+const TABS = [...$$('[role="tab"]')];
+function activarTab(id, mover){
+  TABS.forEach(t => {
+    const sel = t.id === id;
+    t.setAttribute("aria-selected", sel ? "true" : "false");
+    t.tabIndex = sel ? 0 : -1;
+    $("#" + t.getAttribute("aria-controls")).hidden = !sel;
+    if (sel && mover) t.focus();
+  });
+  if (id === "tab-panel") pintarGrafico();
+  if (id === "tab-legal") pintarAuditoria();
+}
+TABS.forEach((t, i) => {
+  t.addEventListener("click", () => activarTab(t.id, false));
+  t.addEventListener("keydown", e => {
+    const k = e.key;
+    let j = null;
+    if (k === "ArrowRight") j = (i + 1) % TABS.length;
+    else if (k === "ArrowLeft") j = (i - 1 + TABS.length) % TABS.length;
+    else if (k === "Home") j = 0;
+    else if (k === "End") j = TABS.length - 1;
+    if (j !== null) { e.preventDefault(); activarTab(TABS[j].id, true); }
+  });
+});
+
+/* ---- período mensual / quincenal ---- */
+$("#sel-periodo").addEventListener("change", e => {
+  const quincenal = e.target.value === "quincenal";
+  PARAMS.periodo = { modo: e.target.value, factor: quincenal ? 0.5 : 1 };
+  const l = form.elements.minimo.closest("label");
+  l.querySelector("small").textContent = quincenal
+    ? "Se escribe el mínimo MENSUAL: el sistema lo divide entre dos para la quincena."
+    : "Se introduce manualmente: depende de sector y jornada. Confirmar el decreto vigente.";
+  refrescar(); pintarPlanilla();
+  aviso(quincenal
+    ? "Período quincenal: topes, tramos de renta y mínimo se calculan a la mitad."
+    : "Período mensual.");
+});
+
+/* ============================================================
+   F. GRÁFICO DE COMPOSICIÓN — SVG puro, sin librerías
+   ============================================================ */
+function pintarGrafico(){
+  const cont = $("#grafico"), ley = $("#grafico-leyenda"), desc = $("#grafico-desc");
+  if (!registros.length) {
+    cont.innerHTML = "";
+    ley.innerHTML = '<p class="gr-vacio">Agregá personas a la planilla para ver la composición.</p>';
+    desc.textContent = ""; return;
+  }
+  const t = { neto:0, isss:0, afp:0, isr:0, alimentos:0, otros:0 };
+  for (const reg of registros) {
+    const c = calcularPlanilla(reg);
+    t.neto += c.liquido; t.isss += c.isss; t.afp += c.afp;
+    t.isr += c.isr; t.alimentos += c.alimentos; t.otros += c.deudaAplicada;
+  }
+  const partes = [
+    { k:"Líquido al trabajador", v:t.neto,      c:"#047857" },
+    { k:"ISSS",                  v:t.isss,      c:"#1d4f8f" },
+    { k:"AFP",                   v:t.afp,       c:"#4a7fc4" },
+    { k:"ISR",                   v:t.isr,       c:"#5c6475" },
+    { k:"Pensión alimenticia",   v:t.alimentos, c:"#9a6206" },
+    { k:"Deudas y otros",        v:t.otros,     c:"#c0182b" }
+  ].filter(p => p.v > 0.004);
+  const total = partes.reduce((s,p) => s + p.v, 0);
+  if (total <= 0) { cont.innerHTML=""; ley.innerHTML='<p class="gr-vacio">Sin montos que representar.</p>'; return; }
+
+  // Dona construida con arcos: un path por porción.
+  const R = 85, r = 52, CX = 95, CY = 95;
+  let ang = -Math.PI / 2, arcos = "";
+  for (const p of partes) {
+    const barrido = (p.v / total) * Math.PI * 2;
+    const fin = ang + barrido;
+    const grande = barrido > Math.PI ? 1 : 0;
+    const x1 = CX + R*Math.cos(ang),  y1 = CY + R*Math.sin(ang);
+    const x2 = CX + R*Math.cos(fin),  y2 = CY + R*Math.sin(fin);
+    const x3 = CX + r*Math.cos(fin),  y3 = CY + r*Math.sin(fin);
+    const x4 = CX + r*Math.cos(ang),  y4 = CY + r*Math.sin(ang);
+    // Una sola porción al 100% no se puede dibujar con un arco: se usa un anillo.
+    if (partes.length === 1) {
+      arcos = `<circle cx="${CX}" cy="${CY}" r="${(R+r)/2}" fill="none" stroke="${p.c}" stroke-width="${R-r}"/>`;
+      break;
+    }
+    arcos += `<path d="M${x1.toFixed(2)} ${y1.toFixed(2)} A${R} ${R} 0 ${grande} 1 ${x2.toFixed(2)} ${y2.toFixed(2)} L${x3.toFixed(2)} ${y3.toFixed(2)} A${r} ${r} 0 ${grande} 0 ${x4.toFixed(2)} ${y4.toFixed(2)} Z" fill="${p.c}"/>`;
+    ang = fin;
+  }
+  const pctNeto = (t.neto / total * 100).toFixed(0);
+  cont.innerHTML = `<svg viewBox="0 0 190 190" xmlns="http://www.w3.org/2000/svg">${arcos}
+    <text x="95" y="90" text-anchor="middle" font-size="26" font-weight="700" fill="currentColor">${pctNeto}%</text>
+    <text x="95" y="107" text-anchor="middle" font-size="9.5" fill="currentColor" opacity=".65">al trabajador</text></svg>`;
+  ley.innerHTML = partes.map(p => `<div class="gr-fila">
+      <span class="gr-punto" style="background:${p.c}"></span>
+      <span>${esc(p.k)}</span>
+      <span class="pc">${(p.v/total*100).toFixed(1)}%</span>
+      <b>${usd(p.v)}</b>
+    </div>`).join("");
+  desc.textContent = `De ${usd(total)} de ingreso bruto acumulado, ${usd(t.neto)} (${pctNeto}%) llegan al trabajador. `
+    + `El resto se reparte entre cotizaciones, renta y retenciones.`;
+}
+
+/* ============================================================
+   G. AUDITORÍA CONSOLIDADA — alertas de toda la planilla
+   ============================================================ */
+function pintarAuditoria(){
+  const cont = $("#auditoria");
+  $("#auditoria-fecha").textContent = registros.length
+    ? `${registros.length} persona(s) · ${new Date().toLocaleDateString("es-SV")}` : "";
+  if (!registros.length) {
+    cont.innerHTML = '<p class="gr-vacio">Todavía no hay personas en la planilla. Agregá al menos una desde la pestaña Cálculo.</p>';
+    return;
+  }
+  let totalE = 0, totalW = 0;
+  const bloques = registros.map(reg => {
+    const c = calcularPlanilla(reg), al = evaluarAlertas(reg, c).filter(a => a.nivel !== "ok");
+    const e = al.filter(a => a.nivel === "error").length, w = al.filter(a => a.nivel === "aviso").length;
+    totalE += e; totalW += w;
+    const pill = e ? `<span class="pill e">${e} crítica${e>1?"s":""}</span>`
+               : w ? `<span class="pill w">${w} por revisar</span>`
+               : `<span class="pill ok">Sin observaciones</span>`;
+    return `<div class="aud-persona">
+      <h3>${esc(reg.nombre)} ${pill} <span class="muted">${esc(reg.cargo)} · líquido ${usd(c.liquido)}</span></h3>
+      ${al.length ? `<div class="aud-lista">${al.map(a => `<div class="aud-item">
+          <span class="pt ${a.nivel==="error"?"e":a.nivel==="aviso"?"w":"i"}"></span>
+          <span><b>${esc(a.titulo)}</b>${a.fundamento?` — <span class="muted">${esc(a.fundamento)}</span>`:""}</span>
+        </div>`).join("")}</div>` : '<p class="muted">Ninguna regla se activó para esta persona.</p>'}
+    </div>`;
+  }).join("");
+  cont.innerHTML = `<p class="muted" style="margin-bottom:16px">
+      <b>${totalE}</b> alerta(s) crítica(s) y <b>${totalW}</b> punto(s) por revisar en el período.
+      Revisá cada situación antes de autorizar cualquier pago.</p>` + bloques;
+}
+
+/* ---- buscador de la tabla ---- */
+function filtrarTabla(){
+  const q = ($("#q").value || "").trim().toLowerCase();
+  const f = $("#filtro").value;
+  let visibles = 0;
+  $$("#filas tr").forEach((tr, i) => {
+    const reg = registros[i]; if (!reg) return;
+    const texto = (reg.nombre + " " + reg.cargo).toLowerCase();
+    const c = calcularPlanilla(reg), al = evaluarAlertas(reg, c);
+    const e = al.some(a => a.nivel === "error"), w = al.some(a => a.nivel === "aviso");
+    const okFiltro = !f || (f === "e" && e) || (f === "w" && !e && w) || (f === "ok" && !e && !w);
+    const mostrar = (!q || texto.includes(q)) && okFiltro;
+    tr.hidden = !mostrar;
+    if (mostrar) visibles++;
+  });
+  $("#record-sin-resultados")?.remove();
+  if (!visibles) $("#filas").insertAdjacentHTML("beforeend",
+    '<tr id="record-sin-resultados"><td colspan="10" style="text-align:center;padding:28px;color:var(--suave)">Ninguna persona coincide con la búsqueda.</td></tr>');
+}
+$("#q").addEventListener("input", filtrarTabla);
+$("#filtro").addEventListener("change", filtrarTabla);
 
 /* ---- arranque ---- */
 try { const t = localStorage.getItem("planilla-tema"); if (t) document.documentElement.dataset.tema = t; } catch(e){}
